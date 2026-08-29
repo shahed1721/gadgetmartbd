@@ -1,49 +1,34 @@
-'use client';
-
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+
+// প্রতি ১ ঘণ্টা (৩৬০০ সেকেন্ড) পর পর পেজটি অটো আপডেট (ISR) হবে এবং ন্যানো-সেকেন্ডে ক্যাশ থেকে লোড হবে
+export const revalidate = 3600;
 
 const CK = 'ck_e8bee42940cb29849845a1b7b1f2b057caac6db0';
 const CS = 'cs_5e3dc7597b9f4bb0f4539b63e0d83b561ba644cc';
 const DOMAIN = 'https://gadgetmartbd.shop';
 
-export default function ProductDetailPage() {
-  const params = useParams();
-  const id = params?.id;
-
-  const [product, setProduct] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    if (!id) return;
-
-    async function fetchProductDetail() {
-      try {
-        const res = await fetch(`${DOMAIN}/wp-json/wc/v3/products/${id}?consumer_key=${CK}&consumer_secret=${CS}`);
-        if (res.ok) {
-          const data = await res.json();
-          setProduct(data);
-        }
-      } catch (error) {
-        console.error("Product detail fetch error:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchProductDetail();
-  }, [id]);
-
-  if (loading) {
-    return <div className="min-h-screen flex items-center justify-center text-gray-600">প্রোডাক্ট লোড হচ্ছে...</div>;
+async function getProduct(id) {
+  try {
+    const res = await fetch(`${DOMAIN}/wp-json/wc/v3/products/${id}?consumer_key=${CK}&consumer_secret=${CS}`, {
+      next: { revalidate: 3600 }
+    });
+    if (!res.ok) return null;
+    return await res.json();
+  } catch (error) {
+    return null;
   }
+}
+
+export default async function ProductPage({ params }) {
+  const { id } = await params;
+  const product = await getProduct(id);
 
   if (!product) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4">
+      <div className="min-h-screen flex flex-col items-center justify-center text-center px-4 bg-gray-50">
         <h2 className="text-2xl font-bold text-red-500 mb-2">প্রোডাক্টটি পাওয়া যায়নি!</h2>
-        <p className="text-gray-600 mb-4">দয়া করে সঠিক প্রোডাক্টে প্রবেশ করুন।</p>
+        <p className="text-gray-600 mb-4">দয়া করে সঠিক প্রোডাক্টটি সিলেক্ট করুন।</p>
         <Link href="/" className="bg-[#16a085] text-white px-6 py-2.5 rounded-md font-semibold">
           হোমপেজে ফিরে যান
         </Link>
@@ -53,44 +38,83 @@ export default function ProductDetailPage() {
 
   const imageUrl = product.images?.[0]?.src || '/logo.png';
   const regularPrice = product.regular_price ? `৳ ${product.regular_price}` : '';
-  const price = product.price ? `৳ ${product.price}` : '';
+  const salePrice = product.price ? `৳ ${product.price}` : '';
 
   return (
-    <div className="min-h-screen bg-gray-50 py-10 px-4">
-      <div className="max-w-4xl mx-auto bg-white rounded-2xl shadow-sm border p-6 md:p-10">
+    <main className="min-h-screen bg-white pb-24">
+      <div className="max-w-2xl mx-auto px-4 py-6 space-y-6">
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
-          
-          {/* প্রোডাক্ট ইমেজ */}
-          <div className="relative h-72 md:h-96 w-full bg-gray-100 rounded-xl overflow-hidden border">
-            <Image src={imageUrl} alt={product.name} fill className="object-contain p-4" />
-          </div>
-
-          {/* প্রোডাক্ট ডিটেইলস */}
-          <div className="space-y-4">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-800" dangerouslySetInnerHTML={{ __html: product.name }} />
-            
-            <div className="flex items-center gap-3">
-              {regularPrice && regularPrice !== price && (
-                <span className="text-sm text-gray-400 line-through">{regularPrice}</span>
-              )}
-              <span className="text-2xl font-extrabold text-[#16a085]">{price}</span>
-            </div>
-
-            <div className="text-gray-600 text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: product.short_description || product.description || 'কোনো বিবরণ নেই।' }} />
-
-            <div className="pt-4">
-              <Link href={`/checkout?id=${product.id}`} className="block w-full">
-                <button className="w-full bg-[#ff0000] hover:bg-red-700 text-white font-bold py-3.5 rounded-lg transition text-center shadow">
-                  অর্ডার করুন (Buy Now)
-                </button>
-              </Link>
-            </div>
-          </div>
-
+        {/* প্রোডাক্ট ইমেজ ও সেল ব্যাজ */}
+        <div className="relative w-full h-[380px] sm:h-[480px] bg-gray-100 rounded-lg overflow-hidden border">
+          {product.on_sale && (
+            <span className="absolute top-3 left-3 bg-[#8e44ad] text-white text-xs px-2.5 py-1 rounded font-bold z-10">
+              Sale!
+            </span>
+          )}
+          <Image 
+            src={imageUrl} 
+            alt={product.name} 
+            fill 
+            priority
+            className="object-cover w-full h-full" 
+          />
         </div>
 
+        {/* প্রোডাক্টের নাম */}
+        <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-snug">
+          {product.name}
+        </h1>
+
+        {/* দামের সেকশন */}
+        <div className="flex items-center gap-3">
+          {regularPrice && regularPrice !== salePrice && (
+            <span className="text-gray-400 line-through text-base sm:text-lg">{regularPrice}</span>
+          )}
+          <span className="text-2xl sm:text-3xl font-extrabold text-gray-900">{salePrice}</span>
+        </div>
+
+        <div className="inline-block border border-gray-300 rounded px-4 py-2 text-center text-gray-700 font-semibold bg-gray-50">
+          1
+        </div>
+
+        <hr className="border-gray-200 my-6" />
+
+        {/* ক্যাটাগরি */}
+        <div className="text-sm text-gray-700">
+          <span className="font-semibold">Category:</span> {product.categories?.map(c => c.name).join(', ') || 'General'}
+        </div>
+
+        {/* ডেসক্রিপশন এবং রিভিউ ট্যাব */}
+        <div className="border-b border-gray-200 flex gap-8 text-sm sm:text-base font-semibold pt-4">
+          <button className="text-[#0066cc] border-b-2 border-[#0066cc] pb-2 cursor-pointer">
+            Description
+          </button>
+          <button className="text-gray-400 pb-2 cursor-pointer">
+            Reviews (0)
+          </button>
+        </div>
+
+        {/* মূল বিবরণী (Description) */}
+        <div 
+          className="text-gray-800 text-sm sm:text-base leading-relaxed space-y-4 pt-2 prose max-w-none"
+          dangerouslySetInnerHTML={{ __html: product.description || product.short_description || 'কোনো বিবরণ নেই।' }}
+        />
+
       </div>
-    </div>
+
+      {/* একদম নিচে ফিক্সড দুটি বাটন: কার্ট এবং বাই নাও */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 shadow-lg z-50 flex gap-3 max-w-2xl mx-auto">
+        <Link href={`/checkout?id=${product.id}`} className="flex-1">
+          <button className="w-full bg-[#333333] hover:bg-black text-white font-bold py-3 px-4 rounded-md text-center transition text-sm sm:text-base cursor-pointer">
+            কার্ট (Cart)
+          </button>
+        </Link>
+        <Link href={`/checkout?id=${product.id}`} className="flex-1">
+          <button className="w-full bg-[#00cc00] hover:bg-green-600 text-white font-extrabold py-3 px-4 rounded-md text-center transition text-sm sm:text-base cursor-pointer shadow-sm">
+            অর্ডার করুন
+          </button>
+        </Link>
+      </div>
+    </main>
   );
 }
