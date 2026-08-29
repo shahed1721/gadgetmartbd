@@ -1,215 +1,157 @@
-import Link from "next/link";
-import SliderComponent from "./SliderComponent";
+'use client';
 
-// পেজ ক্যাশ করে ন্যানো-সেকেন্ডে লোড করার ম্যাজিক কোড
-export const revalidate = 3600; 
+import { useState, useEffect } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 
-const ck = "ck_e8bee42940cb29849845a1b7b1f2b057caac6db0";
-const cs = "cs_5e3dc7597b9f4bb0f4539b63e0d83b561ba644cc";
-const domain = "https://gadgetmartbd.shop";
+const CK = 'ck_e8bee42940cb29849845a1b7b1f2b057caac6db0';
+const CS = 'cs_5e3dc7597b9f4bb0f4539b63e0d83b561ba644cc';
+const DOMAIN = 'https://gadgetmartbd.shop';
 
-async function fetchWooCommerceData(endpoint) {
-  try {
-    const res = await fetch(`${domain}/wp-json/wc/v3/${endpoint}&consumer_key=${ck}&consumer_secret=${cs}`, {
-      next: { revalidate: 3600 },
-    });
-    if (!res.ok) return [];
-    return res.json();
-  } catch (error) {
-    return [];
-  }
-}
+export default function Home() {
+  const [products, setProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-export default async function Home() {
-  const categories = await fetchWooCommerceData("products/categories?hide_empty=true");
-  const bestSellers = await fetchWooCommerceData("products?popularity=1&per_page=6");
-  const allProducts = await fetchWooCommerceData("products?per_page=12");
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        const [prodRes, catRes] = await Promise.all([
+          fetch(`${DOMAIN}/wp-json/wc/v3/products?per_page=100&consumer_key=${CK}&consumer_secret=${CS}`),
+          fetch(`${DOMAIN}/wp-json/wc/v3/products/categories?hide_empty=true&consumer_key=${CK}&consumer_secret=${CS}`)
+        ]);
+
+        if (prodRes.ok) {
+          const prodData = await prodRes.json();
+          setProducts(prodData);
+        }
+        if (catRes.ok) {
+          const catData = await catRes.json();
+          setCategories(catData);
+        }
+      } catch (error) {
+        console.error("Home data fetch error:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchData();
+  }, []);
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-800">
+    <main className="min-h-screen bg-gray-50 pb-16 md:pb-0">
       
+      {/* টপ নোটিফিকেশন বার */}
+      <div className="bg-emerald-600 text-white text-center py-2 text-xs md:text-sm font-semibold">
+        সারা বাংলাদেশে দ্রুত ডেলিভারি • ক্যাশ অন ডেলিভারি • প্রিমিয়াম কোয়ালিটি
+      </div>
+
       {/* হেডার */}
-      <header className="bg-[#e6f7eb] sticky top-0 z-50 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-4">
-          <button className="block md:hidden text-gray-700">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-          </button>
-          
-          <nav className="hidden md:flex space-x-6 text-gray-700 font-semibold">
-            <Link href="/" className="hover:text-teal-600">Home</Link>
-            <Link href="#all-products" className="hover:text-teal-600">Shop</Link>
-            <Link href="#categories" className="hover:text-teal-600">Categories</Link>
-          </nav>
-          
-          <div className="flex items-center justify-center flex-grow md:flex-grow-0">
-            <Link href="/">
-              <img src="/logo.png" alt="Gadget Mart BD" className="h-8 md:h-10 w-auto object-contain" />
-            </Link>
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
+          <Link href="/" className="flex items-center">
+            <Image 
+              src="/logo.png" 
+              alt="Gadget Mart BD Logo" 
+              width={120} 
+              height={40} 
+              className="object-contain h-8 w-auto"
+            />
+          </Link>
+
+          <div className="flex-1 max-w-md hidden md:block relative">
+            <input 
+              type="text" 
+              placeholder="Search for gadgets..." 
+              className="w-full border border-gray-300 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none focus:border-teal-500"
+            />
+            <span className="absolute right-3 top-2 text-gray-400">🔍</span>
           </div>
-          
-          <div className="flex items-center space-x-4">
-            <div className="relative flex items-center">
-              <input type="text" placeholder="Search gadgets..." className="hidden md:block bg-white border border-gray-300 text-xs rounded-full py-1.5 pl-3 pr-8 focus:outline-none focus:border-teal-500 w-40 md:w-56" />
-              <button className="text-gray-700 hover:text-teal-600 md:absolute md:right-2">
-                <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-              </button>
-            </div>
-            <div className="relative">
-              <Link href="/checkout" className="text-gray-700 relative flex items-center justify-center border border-gray-400 p-1 rounded-md">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-white">0</span>
-              </Link>
-            </div>
-          </div>
+          <button className="md:hidden text-gray-600 text-2xl">☰</button>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 py-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-4 space-y-10">
         
-        {/* ১. স্লাইডার */}
-        <section className="mb-4 rounded-xl overflow-hidden shadow">
-          <SliderComponent />
-        </section>
-
-        {/* প্রমোশনাল ব্যানার */}
-        <section className="grid grid-cols-3 gap-2 mb-8">
-            <img src="/banner1.jpg" alt="Promo 1" className="w-full h-auto rounded-lg shadow-sm border border-gray-200" />
-            <img src="/banner2.jpg" alt="Promo 2" className="w-full h-auto rounded-lg shadow-sm border border-gray-200" />
-            <img src="/banner3.jpg" alt="Promo 3" className="w-full h-auto rounded-lg shadow-sm border border-gray-200" />
-        </section>
-
-        {/* ২. Product Category */}
-        <section id="categories" className="mb-10">
-          <SectionTitle title="Product Category" />
-          <div className="grid grid-cols-3 md:grid-cols-6 gap-4 mt-6">
-            {categories.slice(0, 6).map((cat) => (
-              <Link key={cat.id} href={`/category/${cat.id}`} className="flex flex-col items-center justify-center cursor-pointer group">
-                <div className="w-16 h-16 md:w-20 md:h-20 bg-white rounded-xl border border-teal-500 shadow-sm flex items-center justify-center group-hover:shadow-md transition-all p-2">
-                   {cat.image ? (
-                     <img src={cat.image.src} alt={cat.name} className="w-full h-full object-contain" loading="lazy" />
-                   ) : (
-                     <span className="text-xs text-center text-gray-400">No Image</span>
-                   )}
-                </div>
-                <span className="text-sm font-medium text-gray-700 mt-2 text-center underline decoration-teal-500 underline-offset-2">{cat.name}</span>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* ৩. Best Selling Product */}
-        <section className="mb-10">
-          <SectionTitle title="Best Selling Product" />
-          <div className="flex overflow-x-auto space-x-4 pb-4 snap-x mt-6">
-            {bestSellers.map((product) => (
-              <div key={product.id} className="min-w-[180px] md:min-w-[220px] snap-start flex-shrink-0">
-                 <ProductCard product={product} />
-              </div>
-            ))}
-          </div>
-        </section>
-
-        {/* ৪. All products */}
-        <section id="all-products" className="mb-12">
-          <SectionTitle title="All products" />
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4 mt-6">
-            {allProducts.map((product) => (
-              <ProductCard key={product.id} product={product} />
-            ))}
-          </div>
-        </section>
-
-      </main>
-
-      {/* ফুটার */}
-      <footer className="bg-[#bfdbfe] text-center pt-8 pb-12 px-4 text-[#334155] text-sm md:text-base leading-relaxed relative">
-        <p className="font-bold text-lg mb-1">Gadget Mart BD</p>
-        <p>Your trusted destination for quality gadgets and smart<br/>accessories across Bangladesh.</p>
-        <p className="mt-3">Website Developed By</p>
-        <p className="font-bold text-blue-700">SHAHED</p>
-        <p className="mt-3 font-semibold">Contact Information</p>
-        <p>Phone: +8801516554116</p>
-        
-        <button className="absolute bottom-6 right-6 bg-fuchsia-500 text-white p-3 rounded-lg shadow-lg">
-           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" />
-           </svg>
-        </button>
-      </footer>
-    </div>
-  );
-}
-
-function SectionTitle({ title }) {
-  return (
-    <div className="flex justify-center">
-      <h2 className="bg-[#16a085] text-white text-lg md:text-xl font-bold py-2 px-10 rounded-md shadow-sm">
-        {title}
-      </h2>
-    </div>
-  );
-}
-
-// প্রোডাক্ট কার্ড (যেখানে বাই বাটন ক্লিক করলেই অটোমেটিক কার্টে যোগ হয়ে চেকআউটে যাবে)
-function ProductCard({ product }) {
-  const handleBuyNow = (e) => {
-    e.preventDefault();
-    const imageUrl = product.images && product.images[0] ? product.images[0].src : "/logo.png";
-    const productPrice = product.sale_price || product.price || "0";
-    
-    // কার্ট ডেটা তৈরি
-    const cartItem = {
-      id: product.id,
-      name: product.name,
-      price: productPrice,
-      image: imageUrl,
-      quantity: 1
-    };
-
-    // LocalStorage-এ কার্ট সেভ করা (যাতে অটোমেটিক কার্টে যোগ হয়)
-    if (typeof window !== "undefined") {
-      localStorage.setItem("gadget_cart", JSON.stringify([cartItem]));
-    }
-
-    // সরাসরি চেকআউট পেজে রিডাইরেক্ট
-    window.location.href = "/checkout";
-  };
-
-  return (
-    <div className="bg-white rounded-xl overflow-hidden border border-[#16a085] flex flex-col h-full shadow-sm hover:shadow-md transition-shadow">
-      <Link href={`/product/${product.id}`} className="relative h-40 md:h-48 w-full p-2 flex items-center justify-center bg-white cursor-pointer block">
-        {/* প্রোডাক্ট ইমেজ */}
-        {product.images && product.images[0] ? (
-          <img src={product.images[0].src} alt={product.name} className="object-contain h-full w-full" loading="lazy" />
-        ) : (
-          <span className="text-gray-300">No Image</span>
-        )}
-      </Link>
-      <div className="p-3 flex flex-col flex-grow text-center">
-        <Link href={`/product/${product.id}`}>
-          <h3 className="text-gray-700 text-sm mb-2 line-clamp-2 min-h-[40px] hover:text-teal-600 cursor-pointer">{product.name}</h3>
-        </Link>
-        
-        <div className="mt-auto">
-          <div className="flex flex-col items-center justify-center mb-3">
-             {product.sale_price ? (
-               <>
-                 <span className="line-through text-[#16a085] text-xs font-semibold" dangerouslySetInnerHTML={{ __html: product.regular_price + '৳' }}></span>
-                 <span className="text-[#16a085] font-bold text-base" dangerouslySetInnerHTML={{ __html: product.sale_price + '৳' }}></span>
-               </>
-             ) : (
-               <span className="text-[#16a085] font-bold text-base" dangerouslySetInnerHTML={{ __html: product.price + '৳' }}></span>
-             )}
-          </div>
-          
-          <button 
-            onClick={handleBuyNow}
-            className="w-full bg-[#ff0000] text-white text-sm font-bold py-2 rounded-md hover:bg-red-700 transition-colors cursor-pointer"
-          >
-            অর্ডার করুন
-          </button>
+        {/* ব্যানার সেকশন */}
+        <div className="bg-gradient-to-r from-teal-800 to-emerald-900 text-white rounded-2xl p-6 md:p-12 text-center space-y-4 shadow-md">
+          <span className="bg-red-600 text-xs px-4 py-1.5 rounded-full uppercase font-bold tracking-widest shadow-sm">
+            ⚡ সেরা গ্যাজেট ও অ্যাক্সেসরিজ
+          </span>
+          <h1 className="text-2xl md:text-4xl font-extrabold mt-4">স্মার্ট লাইফস্টাইলের জন্য সেরা পছন্দ</h1>
+          <p className="text-xs md:text-sm text-gray-200">আপনার পছন্দের গ্যাজেটগুলো লুফে নিন আকর্ষণীয় মূল্যে।</p>
         </div>
+
+        {/* ক্যাটাগরি সেকশন */}
+        <div>
+          <h2 className="text-xl font-bold text-gray-800 text-center mb-6">ক্যাটাগরি সমূহ</h2>
+          <div className="flex justify-start md:justify-center items-start gap-4 md:gap-8 overflow-x-auto pb-4 scrollbar-hide">
+            {categories && categories.length > 0 ? (
+              categories.map((cat) => (
+                <Link href={`/category/${cat.id}`} key={cat.id} className="flex flex-col items-center flex-shrink-0 group w-20">
+                  <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-white shadow-sm border-2 border-teal-100 overflow-hidden group-hover:border-teal-500 group-hover:shadow-md transition duration-300 flex items-center justify-center">
+                    {cat.image?.src ? (
+                      <Image src={cat.image.src} alt={cat.name} width={80} height={80} className="object-cover w-full h-full group-hover:scale-110 transition duration-300" />
+                    ) : (
+                      <span className="text-2xl">📦</span>
+                    )}
+                  </div>
+                  <span className="text-[11px] md:text-xs font-semibold text-gray-700 mt-3 text-center leading-tight group-hover:text-teal-600 transition">{cat.name}</span>
+                </Link>
+              ))
+            ) : (
+              <p className="text-sm text-gray-500">কোনো ক্যাটাগরি নেই।</p>
+            )}
+          </div>
+        </div>
+
+        {/* প্রোডাক্টস গ্রিড */}
+        <div>
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800 text-center mb-6 border-b pb-3">আমাদের ট্রেন্ডিং প্রোডাক্টসমূহ</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
+            {loading ? (
+              <p className="text-center col-span-full text-gray-500 py-10">প্রোডাক্ট লোড হচ্ছে...</p>
+            ) : products && products.length > 0 ? (
+              products.map((product) => {
+                const imageUrl = product.images?.[0]?.src || '/logo.png';
+                const regularPrice = product.regular_price ? `৳ ${product.regular_price}` : '';
+                const price = product.price ? `৳ ${product.price}` : '';
+
+                return (
+                  <div key={product.id} className="bg-white rounded-xl shadow-[0_2px_10px_rgba(0,0,0,0.06)] hover:shadow-lg transition overflow-hidden flex flex-col justify-between group">
+                    <Link href={`/product/${product.id}`} className="block">
+                      <div className="relative h-44 sm:h-56 md:h-64 w-full bg-gray-100 overflow-hidden">
+                        <Image src={imageUrl} alt={product.name} fill className="object-contain p-2 group-hover:scale-105 transition duration-500" />
+                      </div>
+                      <div className="p-3">
+                        <h3 className="text-xs md:text-sm font-semibold text-gray-800 line-clamp-2 h-9 md:h-10 leading-snug group-hover:text-teal-600 transition" dangerouslySetInnerHTML={{ __html: product.name }} />
+                        <div className="mt-2 flex items-center gap-2 flex-wrap">
+                          {regularPrice && regularPrice !== price && (
+                            <span className="text-[10px] md:text-xs text-gray-400 line-through">{regularPrice}</span>
+                          )}
+                          <span className="text-sm md:text-base font-extrabold text-teal-600">{price}</span>
+                        </div>
+                      </div>
+                    </Link>
+                    <div className="p-3 pt-0 mt-auto">
+                      <Link 
+                        href={`/checkout?id=${product.id}`}
+                        className="w-full bg-[#ff0000] hover:bg-red-700 text-white text-[11px] md:text-sm font-bold py-2.5 px-3 rounded-lg flex items-center justify-center gap-1.5 transition uppercase tracking-wider shadow-sm"
+                      >
+                        ⚡ BUY NOW
+                      </Link>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <p className="text-center col-span-full text-gray-500 py-10">কোনো প্রোডাক্ট পাওয়া যায়নি।</p>
+            )}
+          </div>
+        </div>
+
       </div>
-    </div>
+
+    </main>
   );
 }
