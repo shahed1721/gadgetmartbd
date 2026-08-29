@@ -1,8 +1,7 @@
-"use client";
 import Link from "next/link";
 import SliderComponent from "./SliderComponent";
-import { useState, useEffect } from "react";
 
+// পেজ ক্যাশ করে ন্যানো-সেকেন্ডে লোড করার ম্যাজিক কোড
 export const revalidate = 3600; 
 
 const ck = "ck_e8bee42940cb29849845a1b7b1f2b057caac6db0";
@@ -21,29 +20,10 @@ async function fetchWooCommerceData(endpoint) {
   }
 }
 
-export default function Home() {
-  const [categories, setCategories] = useState([]);
-  const [bestSellers, setBestSellers] = useState([]);
-  const [allProducts, setAllProducts] = useState([]);
-  const [cartCount, setCartCount] = useState(0);
-
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedCart = JSON.parse(localStorage.getItem("gadget_cart")) || [];
-      setCartCount(savedCart.reduce((total, item) => total + item.quantity, 0));
-    }
-
-    async function loadData() {
-      const catData = await fetchWooCommerceData("products/categories?hide_empty=true");
-      const bestData = await fetchWooCommerceData("products?popularity=1&per_page=6");
-      const allData = await fetchWooCommerceData("products?per_page=12");
-      
-      setCategories(catData);
-      setBestSellers(bestData);
-      setAllProducts(allData);
-    }
-    loadData();
-  }, []);
+export default async function Home() {
+  const categories = await fetchWooCommerceData("products/categories?hide_empty=true");
+  const bestSellers = await fetchWooCommerceData("products?popularity=1&per_page=6");
+  const allProducts = await fetchWooCommerceData("products?per_page=12");
 
   return (
     <div className="min-h-screen bg-white font-sans text-gray-800">
@@ -77,7 +57,7 @@ export default function Home() {
             <div className="relative">
               <Link href="/checkout" className="text-gray-700 relative flex items-center justify-center border border-gray-400 p-1 rounded-md">
                 <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-white">{cartCount}</span>
+                <span className="absolute -top-2 -right-2 bg-black text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-white">0</span>
               </Link>
             </div>
           </div>
@@ -170,11 +150,35 @@ function SectionTitle({ title }) {
   );
 }
 
-// প্রোডাক্ট কার্ড (সরাসরি ?id=product_id দিয়ে চেকআউটে যাওয়ার লিংকযুক্ত)
+// প্রোডাক্ট কার্ড (যেখানে বাই বাটন ক্লিক করলেই অটোমেটিক কার্টে যোগ হয়ে চেকআউটে যাবে)
 function ProductCard({ product }) {
+  const handleBuyNow = (e) => {
+    e.preventDefault();
+    const imageUrl = product.images && product.images[0] ? product.images[0].src : "/logo.png";
+    const productPrice = product.sale_price || product.price || "0";
+    
+    // কার্ট ডেটা তৈরি
+    const cartItem = {
+      id: product.id,
+      name: product.name,
+      price: productPrice,
+      image: imageUrl,
+      quantity: 1
+    };
+
+    // LocalStorage-এ কার্ট সেভ করা (যাতে অটোমেটিক কার্টে যোগ হয়)
+    if (typeof window !== "undefined") {
+      localStorage.setItem("gadget_cart", JSON.stringify([cartItem]));
+    }
+
+    // সরাসরি চেকআউট পেজে রিডাইরেক্ট
+    window.location.href = "/checkout";
+  };
+
   return (
     <div className="bg-white rounded-xl overflow-hidden border border-[#16a085] flex flex-col h-full shadow-sm hover:shadow-md transition-shadow">
       <Link href={`/product/${product.id}`} className="relative h-40 md:h-48 w-full p-2 flex items-center justify-center bg-white cursor-pointer block">
+        {/* প্রোডাক্ট ইমেজ */}
         {product.images && product.images[0] ? (
           <img src={product.images[0].src} alt={product.name} className="object-contain h-full w-full" loading="lazy" />
         ) : (
@@ -198,11 +202,12 @@ function ProductCard({ product }) {
              )}
           </div>
           
-          <Link href={`/checkout?id=${product.id}`} className="block w-full">
-            <button className="w-full bg-[#ff0000] text-white text-sm font-bold py-2 rounded-md hover:bg-red-700 transition-colors cursor-pointer">
-              অর্ডার করুন
-            </button>
-          </Link>
+          <button 
+            onClick={handleBuyNow}
+            className="w-full bg-[#ff0000] text-white text-sm font-bold py-2 rounded-md hover:bg-red-700 transition-colors cursor-pointer"
+          >
+            অর্ডার করুন
+          </button>
         </div>
       </div>
     </div>
