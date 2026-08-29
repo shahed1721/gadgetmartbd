@@ -1,148 +1,164 @@
-import Link from "next/link";
+'use client';
 
-export const revalidate = 3600;
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
+import Image from 'next/image';
+import Link from 'next/link';
 
-const ck = "ck_e8bee42940cb29849845a1b7b1f2b057caac6db0";
-const cs = "cs_5e3dc7597b9f4bb0f4539b63e0d83b561ba644cc";
-const domain = "https://gadgetmartbd.shop";
+const CK = 'ck_e8bee42940cb29849845a1b7b1f2b057caac6db0';
+const CS = 'cs_5e3dc7597b9f4bb0f4539b63e0d83b561ba644cc';
+const DOMAIN = 'https://gadgetmartbd.shop';
 
-export async function generateStaticParams() {
-  const res = await fetch(`${domain}/wp-json/wc/v3/products?per_page=50&consumer_key=${ck}&consumer_secret=${cs}`);
-  const products = await res.json();
-  return products.map((product) => ({ id: product.id.toString() }));
-}
+function CheckoutContent() {
+  const searchParams = useSearchParams();
+  const id = searchParams.get('id');
 
-async function getSingleProduct(id) {
-  try {
-    const res = await fetch(`${domain}/wp-json/wc/v3/products/${id}?consumer_key=${ck}&consumer_secret=${cs}`);
-    if (!res.ok) return null;
-    return res.json();
-  } catch (error) {
-    return null;
-  }
-}
+  const [product, setProduct] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [orderSuccess, setOrderSuccess] = useState(false);
+  const [formData, setFormData] = useState({ name: '', phone: '', address: '' });
+  const deliveryCharge = 120;
 
-export default async function ProductPage({ params }) {
-  const resolvedParams = await params;
-  const product = await getSingleProduct(resolvedParams.id);
+  useEffect(() => {
+    // ১. প্রথমে দেখব URL-এ প্রোডাক্ট আইডি আছে কি না
+    if (id) {
+      async function fetchProduct() {
+        try {
+          const res = await fetch(`${DOMAIN}/wp-json/wc/v3/products/${id}?consumer_key=${CK}&consumer_secret=${CS}`);
+          if (res.ok) {
+            const data = await res.json();
+            setProduct(data);
+          }
+        } catch (error) {
+          console.error("Checkout product fetch error:", error);
+        } finally {
+          setLoading(false);
+        }
+      }
+      fetchProduct();
+    } else {
+      // ২. যদি URL-এ আইডি না থাকে, তবে লোকালস্টোরেজ থেকে কার্ট চেক করব (হোমপেজের বাই বাটন থেকে আসার জন্য)
+      const savedCart = JSON.parse(localStorage.getItem("gadget_cart")) || [];
+      if (savedCart.length > 0) {
+        // লোকালস্টোরেজ থেকে WooCommerce প্রোডাক্ট স্ট্রাকচারে রূপান্তর
+        setProduct({
+          id: savedCart[0].id,
+          name: savedCart[0].name,
+          price: savedCart[0].price,
+          images: [{ src: savedCart[0].image }]
+        });
+      }
+      setLoading(false);
+    }
+  }, [id]);
 
-  if (!product) return <div className="p-10 text-center text-xl font-bold text-red-500">Product Not Found!</div>;
+  const handleInputChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
-  const imageUrl = product.images && product.images.length > 0 ? product.images[0].src : "/logo.png";
+  const handleOrderSubmit = async (e) => {
+    e.preventDefault();
+    setSubmitting(true);
+
+    const orderData = {
+      payment_method: "cod",
+      payment_method_title: "Cash on delivery",
+      set_paid: false,
+      billing: { first_name: formData.name, address_1: formData.address, phone: formData.phone },
+      line_items: [{ product_id: product.id, quantity: 1 }],
+      shipping_lines: [{ method_id: "flat_rate", method_title: "Delivery charge", total: deliveryCharge.toString() }]
+    };
+
+    try {
+      const res = await fetch(`${DOMAIN}/wp-json/wc/v3/orders?consumer_key=${CK}&consumer_secret=${CS}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderData)
+      });
+      if (res.ok) {
+        setOrderSuccess(true);
+        localStorage.removeItem("gadget_cart"); // সফল হওয়ার পর কার্ট খালি করে দেওয়া
+      } else {
+        alert("অর্ডার পাঠাতে সমস্যা হয়েছে।");
+      }
+    } catch (error) {
+      alert("নেটওয়ার্ক সমস্যা।");
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (loading) return <div className="text-center py-20">অর্ডার পেজ লোড হচ্ছে...</div>;
+  if (!product) return <div className="text-center py-20 text-red-500">কোনো প্রোডাক্ট সিলেক্ট করা হয়নি!</div>;
+
+  const imageUrl = product.images?.[0]?.src || '/logo.png';
+  const productPrice = Number(product.price || product.sale_price) || 0;
+  const totalPrice = productPrice + deliveryCharge;
 
   return (
-    <div className="min-h-screen bg-white font-sans text-gray-800 flex flex-col justify-between pb-16 md:pb-0">
-      <div>
-        <div className="bg-[#00c853] text-white text-xs md:text-sm text-center py-2 font-medium">
-          সারা বাংলাদেশে দ্রুত ডেলিভারি • ক্যাশ অন ডেলিভারি
+    <div className="bg-white rounded-xl shadow-md p-4 md:p-6 border max-w-2xl mx-auto">
+      {orderSuccess ? (
+        <div className="bg-green-50 border border-green-400 text-green-800 p-6 rounded-lg text-center">
+          <h2 className="font-bold text-2xl mb-2">আপনার অর্ডারটি সফল হয়েছে!</h2>
+          <p className="text-sm">আমাদের প্রতিনিধি শীঘ্রই আপনার সাথে যোগাযোগ করবেন।</p>
+          <Link href="/" className="inline-block mt-4 text-teal-600 font-semibold underline">হোমপেজে ফিরে যান</Link>
         </div>
-
-        {/* হোম পেজের হুবহু হেডার */}
-        <header className="bg-[#e6f7eb] sticky top-0 z-50 shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center gap-4">
-            <button className="block md:hidden text-gray-700">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" /></svg>
-            </button>
-            
-            <nav className="hidden md:flex space-x-6 text-gray-700 font-semibold">
-              <Link href="/" className="hover:text-teal-600">Home</Link>
-              <Link href="/#all-products" className="hover:text-teal-600">Shop</Link>
-              <Link href="/#categories" className="hover:text-teal-600">Categories</Link>
-            </nav>
-            
-            <div className="flex items-center justify-center flex-grow md:flex-grow-0">
-              <Link href="/">
-                <img src="/logo.png" alt="Gadget Mart BD" className="h-8 md:h-10 w-auto object-contain" />
-              </Link>
-            </div>
-            
-            <div className="flex items-center space-x-4">
-              <div className="relative flex items-center">
-                <input type="text" placeholder="Search gadgets..." className="hidden md:block bg-white border border-gray-300 text-xs rounded-full py-1.5 pl-3 pr-8 focus:outline-none focus:border-teal-500 w-40 md:w-56" />
-                <button className="text-gray-700 hover:text-teal-600 md:absolute md:right-2">
-                  <svg className="w-5 h-5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
-                </button>
-              </div>
-              <div className="relative">
-                <button className="text-gray-700 relative flex items-center justify-center">
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
-                  <span className="absolute -top-1 -right-1 bg-black text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full border border-white">0</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        </header>
-
-        <main className="max-w-4xl mx-auto px-4 py-6">
+      ) : (
+        <form onSubmit={handleOrderSubmit} className="space-y-6">
+          <h2 className="text-lg font-bold text-gray-800 border-b pb-2">Billing details</h2>
           
-          {/* প্রোডাক্ট ইমেজ */}
-          <div className="w-full h-80 md:h-[450px] relative bg-white rounded-lg overflow-hidden border flex items-center justify-center p-2">
-            <img src={imageUrl} alt={product.name} className="max-h-full max-w-full object-contain" />
-          </div>
-
-          <div className="mt-4">
-            <h1 className="text-xl md:text-2xl font-bold text-gray-800" dangerouslySetInnerHTML={{ __html: product.name }} />
-            <div className="flex items-center space-x-3 mt-2">
-              {product.regular_price && (
-                <span className="line-through text-gray-400 text-lg">{product.regular_price}৳</span>
-              )}
-              <span className="text-2xl font-black text-black">{product.price}৳</span>
+          <div className="space-y-3">
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">আপনার নাম *</label>
+              <input type="text" name="name" required value={formData.name} onChange={handleInputChange} placeholder="আপনার নাম লিখুন" className="w-full border rounded-md p-2.5 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">ফোন নম্বর *</label>
+              <input type="tel" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="ফোন নম্বর লিখুন" className="w-full border rounded-md p-2.5 text-sm" />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-gray-700 mb-1">সম্পূর্ণ ঠিকানা *</label>
+              <input type="text" name="address" required value={formData.address} onChange={handleInputChange} placeholder="সম্পূর্ণ ঠিকানা লিখুন" className="w-full border rounded-md p-2.5 text-sm" />
             </div>
           </div>
 
-          <div className="mt-4 space-y-3">
-            <Link href="/checkout" className="block w-full">
-              <button className="w-full bg-[#00e676] hover:bg-green-600 text-white font-bold py-3 rounded-md text-lg shadow">
-                অর্ডার করুন
-              </button>
-            </Link>
-            <input type="number" defaultValue="1" min="1" className="w-16 border rounded-md p-2 text-center text-lg mx-auto block" />
+          <div className="border rounded-lg p-4 bg-gray-50 space-y-3 text-sm">
+            <h3 className="font-bold text-gray-800 border-b pb-2">Your order</h3>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="relative h-10 w-10 bg-white border rounded overflow-hidden flex-shrink-0">
+                  <Image src={imageUrl} alt={product.name} fill className="object-cover" />
+                </div>
+                <span className="font-medium text-xs text-gray-800 line-clamp-1">{product.name}</span>
+              </div>
+              <span className="font-bold">৳ {productPrice}</span>
+            </div>
+            <div className="flex justify-between border-t pt-2 text-xs text-gray-600">
+              <span>Shipment (Delivery charge)</span>
+              <span className="font-bold">৳ {deliveryCharge}</span>
+            </div>
+            <div className="flex justify-between border-t pt-2 font-bold text-base text-gray-900">
+              <span>Total</span>
+              <span className="text-teal-600">৳ {totalPrice}</span>
+            </div>
           </div>
 
-          <hr className="my-6" />
-
-          {product.categories?.[0] && (
-            <p className="text-sm text-gray-600 mb-4">
-              Category: <span className="font-semibold text-gray-800">{product.categories[0].name}</span>
-            </p>
-          )}
-
-          <div className="border-b pb-2 mb-4 flex space-x-6 text-sm md:text-base font-semibold">
-            <span className="text-blue-600 border-b-2 border-blue-600 pb-2 cursor-pointer">Description</span>
-            <span className="text-gray-500 cursor-pointer">Reviews (0)</span>
-          </div>
-
-          <div className="text-gray-700 text-sm md:text-base leading-relaxed space-y-2" dangerouslySetInnerHTML={{ __html: product.description || 'কোনো বিবরণ নেই।' }} />
-        </main>
-      </div>
-
-      {/* মোবাইলের জন্য ফিক্সড নেভিগেশন বার (Cart এবং Buy বাটন) */}
-      <div className="block md:hidden fixed bottom-0 left-0 right-0 bg-white border-t shadow-2xl p-2 z-50">
-        <div className="grid grid-cols-2 gap-2">
-          <Link href="/checkout" className="w-full bg-gray-800 text-white font-bold py-2.5 px-2 rounded text-center text-xs uppercase flex items-center justify-center gap-1 shadow">
-            🛒 Cart
-          </Link>
-          <Link href="/checkout" className="w-full bg-indigo-600 text-white font-bold py-2.5 px-2 rounded text-center text-xs uppercase flex items-center justify-center gap-1 shadow">
-            ⚡ Buy
-          </Link>
-        </div>
-      </div>
-
-      {/* হোম পেজের হুবহু ফুটার */}
-      <footer className="bg-[#bfdbfe] text-center pt-8 pb-12 px-4 text-[#334155] text-sm md:text-base leading-relaxed relative mt-10">
-        <p className="font-bold text-lg mb-1">Gadget Mart BD</p>
-        <p>Your trusted destination for quality gadgets and smart<br/>accessories across Bangladesh.</p>
-        <p className="mt-3">Website Developed By</p>
-        <p className="font-bold text-blue-700">SHAHED</p>
-        <p className="mt-3 font-semibold">Contact Information</p>
-        <p>Phone: +8801516554116</p>
-        
-        <button className="absolute bottom-6 right-6 bg-fuchsia-500 text-white p-3 rounded-lg shadow-lg">
-           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 15l7-7 7 7" />
-           </svg>
-        </button>
-      </footer>
+          <button type="submit" disabled={submitting} className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-3 rounded-lg transition text-sm uppercase cursor-pointer">
+            {submitting ? 'প্রসেসিং হচ্ছে...' : 'Place order'}
+          </button>
+        </form>
+      )}
     </div>
+  );
+}
+
+export default function CheckoutPage() {
+  return (
+    <main className="min-h-screen p-4 md:p-8 bg-gray-50">
+      <Suspense fallback={<div className="text-center py-20">লোড হচ্ছে...</div>}>
+        <CheckoutContent />
+      </Suspense>
+    </main>
   );
 }
