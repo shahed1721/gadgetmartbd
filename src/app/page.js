@@ -1,42 +1,35 @@
-'use client';
-
-import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+
+// ১ ঘণ্টা (৩৬০০ সেকেন্ড) পর্যন্ত সার্ভারে ডেটা ফিক্সড ক্যাশ থাকবে। এর মধ্যে কোনো রিলোড বা রিফ্রেশে লোডিং নেবে না!
+export const revalidate = 3600;
 
 const CK = 'ck_e8bee42940cb29849845a1b7b1f2b057caac6db0';
 const CS = 'cs_5e3dc7597b9f4bb0f4539b63e0d83b561ba644cc';
 const DOMAIN = 'https://gadgetmartbd.shop';
 
-export default function Home() {
-  const [products, setProducts] = useState([]);
-  const [categories, setCategories] = useState([]);
-  const [loading, setLoading] = useState(true);
+async function getData() {
+  try {
+    const [prodRes, catRes] = await Promise.all([
+      fetch(`${DOMAIN}/wp-json/wc/v3/products?per_page=100&consumer_key=${CK}&consumer_secret=${CS}`, { 
+        next: { revalidate: 3600 } 
+      }),
+      fetch(`${DOMAIN}/wp-json/wc/v3/products/categories?hide_empty=true&consumer_key=${CK}&consumer_secret=${CS}`, { 
+        next: { revalidate: 3600 } 
+      })
+    ]);
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const [prodRes, catRes] = await Promise.all([
-          fetch(`${DOMAIN}/wp-json/wc/v3/products?per_page=100&consumer_key=${CK}&consumer_secret=${CS}`),
-          fetch(`${DOMAIN}/wp-json/wc/v3/products/categories?hide_empty=true&consumer_key=${CK}&consumer_secret=${CS}`)
-        ]);
+    const products = prodRes.ok ? await prodRes.json() : [];
+    const categories = catRes.ok ? await catRes.json() : [];
 
-        if (prodRes.ok) {
-          const prodData = await prodRes.json();
-          setProducts(prodData);
-        }
-        if (catRes.ok) {
-          const catData = await catRes.json();
-          setCategories(catData);
-        }
-      } catch (error) {
-        console.error("Home data fetch error:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchData();
-  }, []);
+    return { products, categories };
+  } catch (error) {
+    return { products: [], categories: [] };
+  }
+}
+
+export default async function Home() {
+  const { products, categories } = await getData();
 
   return (
     <main className="min-h-screen bg-gray-50 pb-16 md:pb-0">
@@ -79,7 +72,7 @@ export default function Home() {
             ⚡ সেরা গ্যাজেট ও অ্যাক্সেসরিজ
           </span>
           <h1 className="text-2xl md:text-4xl font-extrabold mt-4">স্মার্ট লাইফস্টাইলের জন্য সেরা পছন্দ</h1>
-          <p className="text-xs md:text-sm text-gray-200">আপনার পছন্দের গ্যাজেটগুলো লুফে নিন আকর্ষণীয় মূল্যে।</p>
+          <p className="text-xs md:text-sm text-gray-200">আপনার পছন্দের গ্যাজেটগুলো লুফে নিন আকর্ষণীয় মূল্যে।</p>
         </div>
 
         {/* ক্যাটাগরি সেকশন */}
@@ -109,9 +102,7 @@ export default function Home() {
         <div>
           <h2 className="text-xl md:text-2xl font-bold text-gray-800 text-center mb-6 border-b pb-3">আমাদের ট্রেন্ডিং প্রোডাক্টসমূহ</h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-6">
-            {loading ? (
-              <p className="text-center col-span-full text-gray-500 py-10">প্রোডাক্ট লোড হচ্ছে...</p>
-            ) : products && products.length > 0 ? (
+            {products && products.length > 0 ? (
               products.map((product) => {
                 const imageUrl = product.images?.[0]?.src || '/logo.png';
                 const regularPrice = product.regular_price ? `৳ ${product.regular_price}` : '';
@@ -145,7 +136,7 @@ export default function Home() {
                 );
               })
             ) : (
-              <p className="text-center col-span-full text-gray-500 py-10">কোনো প্রোডাক্ট পাওয়া যায়নি।</p>
+              <p className="text-center col-span-full text-gray-500 py-10">কোনো প্রোডাক্ট পাওয়া যায়নি।</p>
             )}
           </div>
         </div>
