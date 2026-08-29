@@ -28,13 +28,11 @@ export default function Home() {
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
-    // কার্ট কাউন্ট লোড করা
     if (typeof window !== "undefined") {
       const savedCart = JSON.parse(localStorage.getItem("gadget_cart")) || [];
       setCartCount(savedCart.reduce((total, item) => total + item.quantity, 0));
     }
 
-    // ডেটা ফেচ করা
     async function loadData() {
       const catData = await fetchWooCommerceData("products/categories?hide_empty=true");
       const bestData = await fetchWooCommerceData("products?popularity=1&per_page=6");
@@ -172,30 +170,8 @@ function SectionTitle({ title }) {
   );
 }
 
-// প্রোডাক্ট কার্ড (কার্ট লজিকসহ সম্পূর্ণ ডিজাইন)
+// প্রোডাক্ট কার্ড (সরাসরি ?id=product_id দিয়ে চেকআউটে যাওয়ার লিংকযুক্ত)
 function ProductCard({ product }) {
-  const handleBuyNow = (e) => {
-    e.preventDefault();
-    const imageUrl = product.images && product.images[0] ? product.images[0].src : "/logo.png";
-    const existingCart = JSON.parse(localStorage.getItem("gadget_cart")) || [];
-    const productIndex = existingCart.findIndex((item) => item.id === product.id);
-
-    if (productIndex > -1) {
-      existingCart[productIndex].quantity += 1;
-    } else {
-      existingCart.push({
-        id: product.id,
-        name: product.name,
-        price: product.price || product.sale_price || "0",
-        image: imageUrl,
-        quantity: 1,
-      });
-    }
-
-    localStorage.setItem("gadget_cart", JSON.stringify(existingCart));
-    window.location.href = "/checkout"; // সরাসরি চেকআউট পেজে রিডাইরেক্ট
-  };
-
   return (
     <div className="bg-white rounded-xl overflow-hidden border border-[#16a085] flex flex-col h-full shadow-sm hover:shadow-md transition-shadow">
       <Link href={`/product/${product.id}`} className="relative h-40 md:h-48 w-full p-2 flex items-center justify-center bg-white cursor-pointer block">
@@ -222,12 +198,11 @@ function ProductCard({ product }) {
              )}
           </div>
           
-          <button 
-            onClick={handleBuyNow}
-            className="w-full bg-[#ff0000] text-white text-sm font-bold py-2 rounded-md hover:bg-red-700 transition-colors cursor-pointer"
-          >
-            অর্ডার করুন
-          </button>
+          <Link href={`/checkout?id=${product.id}`} className="block w-full">
+            <button className="w-full bg-[#ff0000] text-white text-sm font-bold py-2 rounded-md hover:bg-red-700 transition-colors cursor-pointer">
+              অর্ডার করুন
+            </button>
+          </Link>
         </div>
       </div>
     </div>
