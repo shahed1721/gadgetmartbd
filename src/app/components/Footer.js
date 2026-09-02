@@ -32,8 +32,8 @@ export default function Footer() {
             <h3 className="text-white font-semibold mb-5 text-lg tracking-wide border-b border-slate-700 pb-2 inline-block">Our Network</h3>
             <ul className="space-y-3 text-sm text-slate-400">
               <li><a href="https://gadgetmartbd.shop" target="_blank" rel="noreferrer" className="hover:text-teal-400 hover:translate-x-1 transition-all flex items-center gap-2">🔗 Gadget Mart BD</a></li>
-              <li><a href="https://genters.com.bd" target="_blank" rel="noreferrer" className="hover:text-teal-400 hover:translate-x-1 transition-all flex items-center gap-2">🔗 Genters</a></li>
-              <li><a href="https://probasirsajghor.shop" target="_blank" rel="noreferrer" className="hover:text-teal-400 hover:translate-x-1 transition-all flex items-center gap-2">🔗 Probasir Sajghor</a></li>
+              <li><a href="https://webcarftbd.online" target="_blank" rel="noreferrer" className="hover:text-teal-400 hover:translate-x-1 transition-all flex items-center gap-2">🔗 Web Carft BD</a></li>
+              <li><a href="https://tsbeautyglow.shop" target="_blank" rel="noreferrer" className="hover:text-teal-400 hover:translate-x-1 transition-all flex items-center gap-2">🔗 TS Beauty glow</a></li>
             </ul>
           </div>
 
