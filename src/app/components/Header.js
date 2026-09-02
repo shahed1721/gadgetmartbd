@@ -6,61 +6,54 @@ export default function Header() {
   const { totalCartCount } = useCart();
 
   return (
-    <header className="sticky top-0 z-50 w-full backdrop-blur-md bg-white/85 border-b border-gray-100 shadow-[0_4px_30px_rgba(0,0,0,0.03)] transition-all">
-      
-      {/* টপ নোটিফিকেশন বার */}
-      <div className="bg-gradient-to-r from-teal-600 to-emerald-600 text-white text-center py-1.5 text-xs font-medium tracking-wide">
-        CarryBee কুরিয়ারের মাধ্যমে সারা বাংলাদেশে দ্রুত ডেলিভারি! ⚡
-      </div>
-      
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16 gap-4">
+    <header className="bg-teal-700 border-b border-teal-800 sticky top-0 z-40 shadow-md text-white">
+      <div className="max-w-7xl mx-auto px-4 py-3">
+        
+        {/* মূল হেডার বার (লোগো, সার্চ ও কার্ট) */}
+        <div className="flex items-center justify-between gap-3">
           
           {/* লোগো */}
-          <Link href="/" className="flex-shrink-0 flex items-center gap-2 group">
-            <img src="/logo.png" alt="Gadget Mart BD" className="h-8 md:h-10 w-auto object-contain transition-transform group-hover:scale-105" />
-            <span className="font-extrabold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-teal-700 to-emerald-600 hidden sm:block">
-              Gadget Mart
-            </span>
+          <Link href="/" className="flex items-center flex-shrink-0">
+            <img src="/logo.png" alt="Gadget Mart BD Logo" className="object-contain h-8 w-auto bg-white rounded p-1" />
           </Link>
 
-          {/* মডার্ন সার্চ বার */}
-          <div className="flex-1 max-w-xl hidden md:flex items-center relative">
+          {/* ডেস্কটপ সার্চ বার */}
+          <div className="flex-1 max-w-md hidden md:block relative">
             <input 
               type="text" 
-              placeholder="আপনার পছন্দের গ্যাজেট খুঁজুন..." 
-              className="w-full bg-gray-50/50 border border-gray-200 text-gray-800 text-sm rounded-full pl-5 pr-12 py-2.5 focus:outline-none focus:ring-2 focus:ring-teal-500/40 focus:border-teal-500 transition-all shadow-inner"
+              placeholder="Search for gadgets..." 
+              className="w-full bg-white text-gray-800 border border-teal-600 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400"
             />
-            <button className="absolute right-1.5 top-1.5 p-1.5 bg-teal-600 text-white rounded-full hover:bg-teal-700 transition-colors shadow-sm">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-            </button>
+            <span className="absolute right-3 top-2 text-gray-400">🔍</span>
           </div>
 
-          {/* নেভিগেশন ও আইকনস */}
-          <div className="flex items-center gap-5">
-            <nav className="hidden lg:flex items-center gap-6 text-sm font-bold text-gray-600">
-              <Link href="/" className="hover:text-teal-600 transition-colors">Home</Link>
-              <Link href="/shop" className="hover:text-teal-600 transition-colors">Shop</Link>
-              <Link href="/track" className="hover:text-teal-600 transition-colors">Track Order</Link>
-            </nav>
+          {/* ডানদিকের অপশন: কার্ট আইকন ও মোবাইল মেন্যু বাটন */}
+          <div className="flex items-center space-x-3">
+            <Link href="/cart" className="relative text-white hover:text-teal-200 transition">
+              <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+              </svg>
+              {/* লাইভ কার্ট কাউন্টার */}
+              <span className="absolute -top-1 -right-2 bg-red-600 text-white text-[11px] font-bold px-1.5 py-0.2 rounded-full border border-teal-700">
+                {totalCartCount}
+              </span>
+            </Link>
             
-            {/* কার্ট আইকন (বাটনের বদলে Link করা হয়েছে) */}
-            <div className="flex items-center gap-3">
-              <Link href="/cart" className="relative p-2.5 text-gray-700 hover:text-teal-600 transition-colors bg-gray-100/50 hover:bg-teal-50 rounded-full border border-transparent hover:border-teal-100 inline-flex items-center justify-center">
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
-                <span className="absolute -top-1 -right-1 inline-flex items-center justify-center px-1.5 py-0.5 text-[10px] font-bold text-white bg-red-500 rounded-full border-2 border-white shadow-sm">
-                  {totalCartCount}
-                </span>
-              </Link>
-              
-              {/* মোবাইল মেন্যু হ্যামবার্গার */}
-              <button className="md:hidden p-2 text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
-              </button>
-            </div>
+            <button className="md:hidden text-white text-2xl hover:text-teal-200 transition">☰</button>
           </div>
 
         </div>
+
+        {/* মোবাইল ভিউর জন্য সার্চ বার (লোগো এবং আইকনের নিচে আলাদা লাইনে দেখাবে) */}
+        <div className="mt-3 md:hidden relative">
+          <input 
+            type="text" 
+            placeholder="Search for gadgets..." 
+            className="w-full bg-white text-gray-800 border border-teal-600 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-teal-400 shadow-inner"
+          />
+          <span className="absolute right-3 top-2.5 text-gray-400 text-sm">🔍</span>
+        </div>
+
       </div>
     </header>
   );
