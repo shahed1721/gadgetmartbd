@@ -6,7 +6,7 @@ export default function Header() {
   const { totalCartCount } = useCart();
 
   return (
-    <header className="bg-teal-700 border-b border-teal-800 sticky top-0 z-40 shadow-md text-white">
+    <header className="bg-teal-700 border-b border-teal-800 z-45 shadow-md text-white">
       <div className="max-w-7xl mx-auto px-4 py-3">
         
         {/* মূল হেডার বার (লোগো, সার্চ ও কার্ট) */}
@@ -44,7 +44,7 @@ export default function Header() {
 
         </div>
 
-        {/* মোবাইল ভিউর জন্য সার্চ বার (লোগো এবং আইকনের নিচে আলাদা লাইনে দেখাবে) */}
+        {/* মোবাইল ভিউর জন্য সার্চ বার */}
         <div className="mt-3 md:hidden relative">
           <input 
             type="text" 
