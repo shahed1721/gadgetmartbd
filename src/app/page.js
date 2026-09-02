@@ -39,31 +39,6 @@ export default async function Home() {
         সারা বাংলাদেশে দ্রুত ডেলিভারি • ক্যাশ অন ডেলিভারি • প্রিমিয়াম কোয়ালিটি
       </div>
 
-      {/* হেডার */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-4">
-          <Link href="/" className="flex items-center">
-            <Image 
-              src="/logo.png" 
-              alt="Gadget Mart BD Logo" 
-              width={120} 
-              height={40} 
-              className="object-contain h-8 w-auto"
-            />
-          </Link>
-
-          <div className="flex-1 max-w-md hidden md:block relative">
-            <input 
-              type="text" 
-              placeholder="Search for gadgets..." 
-              className="w-full border border-gray-300 rounded-lg pl-3 pr-10 py-2 text-sm focus:outline-none focus:border-teal-500"
-            />
-            <span className="absolute right-3 top-2 text-gray-400">🔍</span>
-          </div>
-          <button className="md:hidden text-gray-600 text-2xl">☰</button>
-        </div>
-      </header>
-
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 mt-4 space-y-10">
         
         {/* ব্যানার সেকশন */}

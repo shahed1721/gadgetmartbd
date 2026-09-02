@@ -4,6 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useCart } from '../components/CartContext';
 
 const CK = 'ck_e8bee42940cb29849845a1b7b1f2b057caac6db0';
 const CS = 'cs_5e3dc7597b9f4bb0f4539b63e0d83b561ba644cc';
@@ -11,9 +12,10 @@ const DOMAIN = 'https://gadgetmartbd.shop';
 
 function CheckoutContent() {
   const searchParams = useSearchParams();
-  const id = searchParams.get('id');
+  const singleId = searchParams.get('id'); // ইউআরএলে আইডি থাকতে পারে (Buy Now এর জন্য)
+  const { cart } = useCart();
 
-  const [product, setProduct] = useState(null);
+  const [checkoutItems, setCheckoutItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -21,25 +23,33 @@ function CheckoutContent() {
   const deliveryCharge = 120;
 
   useEffect(() => {
-    if (id) {
-      async function fetchProduct() {
+    async function loadCheckoutItems() {
+      // যদি ইউআরএলে সিঙ্গেল আইডি থাকে (Order Now থেকে আসা) এবং কার্ট খালি থাকে, তবে ওই প্রোডাক্টটি ফেচ করব
+      if (singleId && cart.length === 0) {
         try {
-          const res = await fetch(`${DOMAIN}/wp-json/wc/v3/products/${id}?consumer_key=${CK}&consumer_secret=${CS}`);
+          const res = await fetch(`${DOMAIN}/wp-json/wc/v3/products/${singleId}?consumer_key=${CK}&consumer_secret=${CS}`);
           if (res.ok) {
             const data = await res.json();
-            setProduct(data);
+            setCheckoutItems([{
+              id: data.id,
+              name: data.name,
+              price: Number(data.price || data.regular_price) || 0,
+              image: data.images?.[0]?.src || '/logo.png',
+              quantity: 1
+            }]);
           }
         } catch (error) {
-          console.error("Checkout product fetch error:", error);
-        } finally {
-          setLoading(false);
+          console.error("Single product fetch error:", error);
         }
+      } else {
+        // অন্যথায় কার্টে থাকা সমস্ত প্রোডাক্ট দেখাবে
+        setCheckoutItems(cart);
       }
-      fetchProduct();
-    } else {
       setLoading(false);
     }
-  }, [id]);
+
+    loadCheckoutItems();
+  }, [singleId, cart]);
 
   const handleInputChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -47,16 +57,30 @@ function CheckoutContent() {
 
   const handleOrderSubmit = async (e) => {
     e.preventDefault();
-    if (!product) return;
+    if (checkoutItems.length === 0) return;
     setSubmitting(true);
+
+    // কার্টের সব প্রোডাক্ট WooCommerce line_items ফরম্যাটে রূপান্তর করা
+    const lineItems = checkoutItems.map(item => ({
+      product_id: item.id,
+      quantity: item.quantity || 1
+    }));
 
     const orderData = {
       payment_method: "cod",
       payment_method_title: "Cash on delivery",
       set_paid: false,
-      billing: { first_name: formData.name, address_1: formData.address, phone: formData.phone },
-      line_items: [{ product_id: product.id, quantity: 1 }],
-      shipping_lines: [{ method_id: "flat_rate", method_title: "Delivery charge", total: deliveryCharge.toString() }]
+      billing: { 
+        first_name: formData.name, 
+        address_1: formData.address, 
+        phone: formData.phone 
+      },
+      line_items: lineItems,
+      shipping_lines: [{ 
+        method_id: "flat_rate", 
+        method_title: "Delivery charge", 
+        total: deliveryCharge.toString() 
+      }]
     };
 
     try {
@@ -67,6 +91,8 @@ function CheckoutContent() {
       });
       if (res.ok) {
         setOrderSuccess(true);
+        // অর্ডার সফল হলে লোকাল স্টোরেজ বা কার্ট পরিষ্কার করে দিতে পারেন চাইলে
+        localStorage.removeItem('cart');
       } else {
         alert("অর্ডার পাঠাতে সমস্যা হয়েছে।");
       }
@@ -78,11 +104,18 @@ function CheckoutContent() {
   };
 
   if (loading) return <div className="text-center py-20">অর্ডার পেজ লোড হচ্ছে...</div>;
-  if (!product) return <div className="text-center py-20 text-red-500">কোনো প্রোডাক্ট সিলেক্ট করা হয়নি! অনুগ্রহ করে হোমপেজ থেকে বাই নাও বাটনে ক্লিক করুন।</div>;
+  if (checkoutItems.length === 0) return (
+    <div className="text-center py-20 text-gray-500 max-w-md mx-auto bg-white p-8 rounded-xl shadow-sm">
+      <p className="mb-4">আপনার চেকআউট করার মতো কোনো প্রোডাক্ট নেই!</p>
+      <Link href="/" className="bg-teal-600 text-white px-6 py-2.5 rounded-xl font-bold inline-block">
+        হোমপেজে ফিরে যান
+      </Link>
+    </div>
+  );
 
-  const imageUrl = product.images?.[0]?.src || '/logo.png';
-  const productPrice = Number(product.price || product.sale_price) || 0;
-  const totalPrice = productPrice + deliveryCharge;
+  // সাবটোটাল এবং মোট দাম হিসাব করা
+  const subTotal = checkoutItems.reduce((sum, item) => sum + (Number(item.price) * (item.quantity || 1)), 0);
+  const totalPrice = subTotal + deliveryCharge;
 
   return (
     <div className="bg-white rounded-xl shadow-md p-4 md:p-6 border max-w-2xl mx-auto">
@@ -112,20 +145,36 @@ function CheckoutContent() {
           </div>
 
           <div className="border rounded-lg p-4 bg-gray-50 space-y-3 text-sm">
-            <h3 className="font-bold text-gray-800 border-b pb-2">Your order</h3>
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <div className="relative h-10 w-10 bg-white border rounded overflow-hidden flex-shrink-0">
-                  <Image src={imageUrl} alt={product.name} fill className="object-cover" />
+            <h3 className="font-bold text-gray-800 border-b pb-2">Your order ({checkoutItems.length} items)</h3>
+            
+            {/* কার্টের সব প্রোডাক্ট লুপ চালিয়ে দেখানো */}
+            <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+              {checkoutItems.map((item) => (
+                <div key={item.id} className="flex items-center justify-between border-b border-gray-200/60 pb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="relative h-10 w-10 bg-white border rounded overflow-hidden flex-shrink-0">
+                      <Image src={item.image || '/logo.png'} alt={item.name} fill className="object-cover" />
+                    </div>
+                    <div>
+                      <span className="font-medium text-xs text-gray-800 line-clamp-1" dangerouslySetInnerHTML={{ __html: item.name }} />
+                      <span className="text-[11px] text-gray-500">কোয়ান্টিটি: {item.quantity || 1}</span>
+                    </div>
+                  </div>
+                  <span className="font-bold text-xs">৳ {Number(item.price) * (item.quantity || 1)}</span>
                 </div>
-                <span className="font-medium text-xs text-gray-800 line-clamp-1">{product.name}</span>
-              </div>
-              <span className="font-bold">৳ {productPrice}</span>
+              ))}
             </div>
+
+            <div className="flex justify-between border-t pt-2 text-xs text-gray-600">
+              <span>Subtotal</span>
+              <span className="font-bold">৳ {subTotal}</span>
+            </div>
+
             <div className="flex justify-between border-t pt-2 text-xs text-gray-600">
               <span>Shipment (Delivery charge)</span>
               <span className="font-bold">৳ {deliveryCharge}</span>
             </div>
+
             <div className="flex justify-between border-t pt-2 font-bold text-base text-gray-900">
               <span>Total</span>
               <span className="text-teal-600">৳ {totalPrice}</span>
