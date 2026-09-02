@@ -17,7 +17,7 @@ export default function Header() {
 
           {/* লোগো: মোবাইল ভিউতে absolute করে ঠিক মাঝখানে রাখা হয়েছে এবং সাইজ 75px করা হয়েছে (সাদা ব্যাকগ্রাউন্ড সরিয়ে দেওয়া হয়েছে) */}
           <Link href="/" className="flex items-center absolute left-1/2 -translate-x-1/2 md:static md:translate-x-0 order-2">
-            <img src="/logo.png" alt="Gadget Mart BD Logo" style={{ width: '75px' }} className="object-contain" />
+            <img src="/logo.png" alt="Gadget Mart BD Logo" style={{ width: '85px' }} className="object-contain" />
           </Link>
 
           {/* ডেস্কটপ সার্চ বার */}
