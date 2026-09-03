@@ -34,7 +34,7 @@ function PaymentNoticeContent() {
   return (
     <div className="max-w-2xl mx-auto px-4 py-8 font-sans">
       
-      {/* ১. নতুন ডিজাইনের নোটিশ সেকশন (ছবি অনুযায়ী) */}
+      {/* ১. নতুন ডিজাইনের নোটিশ সেকশন */}
       <div className="mb-8">
         {/* হেডার / ব্যাজ */}
         <div className="flex items-center gap-3 mb-3">
@@ -54,9 +54,9 @@ function PaymentNoticeContent() {
         </div>
       </div>
 
-      {/* ২. অডিও প্লেয়ার */}
+      {/* ২. অডিও প্লেয়ার (অটো-প্লে যুক্ত করা হয়েছে) */}
       <div className="mb-6">
-        <audio controls preload="auto" className="w-full h-12 rounded-lg bg-gray-100">
+        <audio autoPlay controls preload="auto" className="w-full h-12 rounded-lg bg-gray-100">
           <source src="/fraud-notice-audio.mp3" type="audio/mpeg" />
         </audio>
       </div>
@@ -79,7 +79,7 @@ function PaymentNoticeContent() {
         </div>
       </div>
 
-      {/* ৪. কুরিয়ার হিস্ট্রি (কালো এবং স্পষ্ট টেক্সট) */}
+      {/* ৪. কুরিয়ার হিস্ট্রি */}
       {phone && (
         <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm mb-6">
           <h3 className="text-lg font-bold text-gray-900 mb-4 border-b border-gray-200 pb-3">আপনার কুরিয়ার ডেলিভারি হিস্ট্রি</h3>

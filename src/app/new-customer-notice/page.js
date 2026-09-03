@@ -48,9 +48,9 @@ function NewCustomerNoticeContent() {
           {`আপনার এই নম্বর দিয়ে পূর্বে অনলাইন বা ই-কমার্স সাইটে কোনো অর্ডার করার ইতিহাস পাওয়া যায়নি। আমাদের সিস্টেমে এটি আপনার প্রথম অর্ডার হওয়ায়, অর্ডারটি কনফার্ম করতে অনুগ্রহ করে ২০ টাকা অ্যাডভান্স (বিকাশ/নগদ) পেমেন্ট সম্পন্ন করুন। বাকি টাকা পণ্য হাতে পেয়ে ক্যাশ অন ডেলিভারিতে (COD) দিতে পারবেন।\n\nপেমেন্ট সম্পন্ন হলে একদম নিচে গিয়ে সেখান থেকে অর্ডার করবেন।`}
         </div>
 
-        {/* অডিও প্লেয়ার */}
+        {/* অডিও প্লেয়ার (অটো-প্লে যুক্ত করা হয়েছে) */}
         <div className="mb-6">
-          <audio controls preload="auto" className="w-full h-10 rounded-lg">
+          <audio autoPlay controls preload="auto" className="w-full h-10 rounded-lg">
             <source src="/new-customer-audio.mp3" type="audio/mpeg" />
           </audio>
         </div>
@@ -99,7 +99,7 @@ function NewCustomerNoticeContent() {
           </div>
         )}
 
-        {/* কনফার্মেশন বাটন (আপডেট করা হয়েছে) */}
+        {/* কনফার্মেশন বাটন */}
         <div className="mt-6 text-center border-t border-orange-200 pt-6">
           <a href="/custom-checkout" className="block w-full bg-teal-700 text-white font-bold py-3.5 rounded-lg hover:bg-teal-800 transition-colors shadow-md text-lg text-center cursor-pointer">
             পেমেন্ট করেছি, এখন অর্ডার প্লেস করব ➔
