@@ -12,7 +12,7 @@ export default function Footer() {
               <span className="text-teal-500">Gadget</span> Mart BD
             </h2>
             <p className="text-sm leading-relaxed text-slate-400">
-              আপনার স্মার্ট লাইফস্টাইলের জন্য সেরা গ্যাজেট ও অ্যাক্সেসরিজ। প্রিমিয়াম কোয়ালিটি এবং সারা বাংলাদেশে দ্রুত কুরিয়ার ডেলিভারি নিশ্চিত করতে আমরা অঙ্গীকারবদ্ধ।
+              আপনার স্মার্ট লাইফস্টাইলের জন্য সেরা গ্যাজেট ও অ্যাক্সেসরিজ। প্রিমিয়াম কোয়ালিটি এবং সারা বাংলাদেশে দ্রুত কুরিয়ার ডেলিভারি নিশ্চিত করতে আমরা অঙ্গীকারবদ্ধ।
             </p>
           </div>
 
@@ -20,14 +20,15 @@ export default function Footer() {
           <div>
             <h3 className="text-white font-semibold mb-5 text-lg tracking-wide border-b border-slate-700 pb-2 inline-block">Quick Links</h3>
             <ul className="space-y-3 text-sm text-slate-400">
-              <li><Link href="/" className="hover:text-teal-400 hover:translate-x-1 transition-all inline-block">Shop Electronics</Link></li>
+              <li><Link href="/shop" className="hover:text-teal-400 hover:translate-x-1 transition-all inline-block">Shop Electronics</Link></li>
               <li><Link href="/checkout" className="hover:text-teal-400 hover:translate-x-1 transition-all inline-block">Checkout</Link></li>
-              <li><Link href="/privacy" className="hover:text-teal-400 hover:translate-x-1 transition-all inline-block">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="hover:text-teal-400 hover:translate-x-1 transition-all inline-block">Terms & Conditions</Link></li>
+              {/* নিচের দুটি লিংক আপডেট করা হয়েছে */}
+              <li><Link href="/privacy-policy" className="hover:text-teal-400 hover:translate-x-1 transition-all inline-block">Privacy Policy</Link></li>
+              <li><Link href="/terms-conditions" className="hover:text-teal-400 hover:translate-x-1 transition-all inline-block">Terms & Conditions</Link></li>
             </ul>
           </div>
 
-          {/* আওয়ার নেটওয়ার্ক (আপনার অন্যান্য প্রজেক্টগুলো) */}
+          {/* আওয়ার নেটওয়ার্ক (আপনার অন্যান্য প্রজেক্টগুলো) */}
           <div>
             <h3 className="text-white font-semibold mb-5 text-lg tracking-wide border-b border-slate-700 pb-2 inline-block">Our Network</h3>
             <ul className="space-y-3 text-sm text-slate-400">
