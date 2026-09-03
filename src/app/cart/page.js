@@ -60,7 +60,7 @@ export default function CartPage() {
                 ← আরও কেনাকাটা করুন
               </Link>
               <Link href="/checkout" className="bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white font-extrabold px-8 py-3 rounded-xl shadow-lg shadow-teal-500/30 transition">
-                প্রোসিড টু চেকআউট ⚡
+                checkout ⚡
               </Link>
             </div>
           </div>
