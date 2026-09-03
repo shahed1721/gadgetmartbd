@@ -63,49 +63,49 @@ function PaymentNoticeContent() {
           <div className="bg-white border border-gray-200 p-3 rounded-lg flex items-center gap-3 shadow-xs">
             <span className="font-bold text-pink-600 text-sm">বিকাশ:</span>
             <div>
-              <p className="font-bold text-gray-800 text-sm">01892369049</p>
+              <p className="font-bold text-gray-900 text-sm">01892369049</p>
               <span className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-1.5 py-0.5 rounded font-semibold">এটা বিকাশ মার্চেন্ট নাম্বার। পেমেন্ট করতে হবে।</span>
             </div>
           </div>
           <div className="bg-white border border-gray-200 p-3 rounded-lg flex items-center gap-3 shadow-xs">
             <span className="font-bold text-orange-600 text-sm">নগদ:</span>
             <div>
-              <p className="font-bold text-gray-800 text-sm">01771261818</p>
+              <p className="font-bold text-gray-900 text-sm">01771261818</p>
               <span className="text-[10px] bg-red-50 text-red-600 border border-red-200 px-1.5 py-0.5 rounded font-semibold">এটা পারসোনাল নাম্বার। সেন্ড মানি করবেন।</span>
             </div>
           </div>
         </div>
 
-        {/* কুরিয়ার হিস্ট্রি */}
+        {/* কুরিয়ার হিস্ট্রি (কালার ফিক্স করা হয়েছে) */}
         {phone && (
           <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm mb-2 mt-4">
-            <h3 className="text-base font-bold text-gray-800 mb-3 border-b pb-2">আপনার কুরিয়ার ডেলিভারি হিস্ট্রি</h3>
+            <h3 className="text-base font-bold text-gray-900 mb-3 border-b pb-2">আপনার কুরিয়ার ডেলিভারি হিস্ট্রি</h3>
             
             {loading ? (
               <div className="text-teal-600 font-bold animate-pulse text-sm">ডেটা লোড হচ্ছে... অনুগ্রহ করে অপেক্ষা করুন।</div>
             ) : historyData ? (
               <div>
-                <div className="bg-gray-50 p-2 rounded-lg mb-3 text-xs border">
-                  <strong>মোট পার্সেল:</strong> {historyData.summary?.total_parcel} | <strong className="text-green-600">সাকসেস:</strong> {historyData.summary?.success_parcel} | <strong className="text-red-600">ক্যানসেল:</strong> {historyData.summary?.cancelled_parcel} | <strong>সাকসেস রেট:</strong> {historyData.summary?.success_ratio}%
+                <div className="bg-gray-50 p-2 rounded-lg mb-3 text-xs border border-gray-200 text-gray-900">
+                  <strong className="text-gray-900">মোট পার্সেল:</strong> {historyData.summary?.total_parcel} | <strong className="text-green-600">সাকসেস:</strong> {historyData.summary?.success_parcel} | <strong className="text-red-600">ক্যানসেল:</strong> {historyData.summary?.cancelled_parcel} | <strong className="text-gray-900">সাকসেস রেট:</strong> {historyData.summary?.success_ratio}%
                 </div>
                 
                 <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left border-collapse border border-gray-200">
-                    <thead className="bg-gray-100">
+                  <table className="w-full text-xs text-left border-collapse border border-gray-300">
+                    <thead className="bg-gray-200 text-gray-900">
                       <tr>
-                        <th className="border p-2">কুরিয়ার</th>
-                        <th className="border p-2 text-center">মোট</th>
-                        <th className="border p-2 text-center">সাকসেস</th>
-                        <th className="border p-2 text-center">ক্যানসেল</th>
+                        <th className="border border-gray-300 p-2 font-bold">কুরিয়ার</th>
+                        <th className="border border-gray-300 p-2 text-center font-bold">মোট</th>
+                        <th className="border border-gray-300 p-2 text-center font-bold text-green-700">সাকসেস</th>
+                        <th className="border border-gray-300 p-2 text-center font-bold text-red-700">ক্যানসেল</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className="text-gray-900">
                       {couriers.map(c => historyData[c] && (
-                        <tr key={c}>
-                          <td className="border p-2 font-semibold capitalize">{historyData[c].name}</td>
-                          <td className="border p-2 text-center">{historyData[c].total_parcel}</td>
-                          <td className="border p-2 text-center text-green-600">{historyData[c].success_parcel}</td>
-                          <td className="border p-2 text-center text-red-600">{historyData[c].cancelled_parcel}</td>
+                        <tr key={c} className="bg-white hover:bg-gray-50">
+                          <td className="border border-gray-300 p-2 font-semibold capitalize text-gray-900">{historyData[c].name}</td>
+                          <td className="border border-gray-300 p-2 text-center font-medium text-gray-900">{historyData[c].total_parcel}</td>
+                          <td className="border border-gray-300 p-2 text-center font-bold text-green-600">{historyData[c].success_parcel}</td>
+                          <td className="border border-gray-300 p-2 text-center font-bold text-red-600">{historyData[c].cancelled_parcel}</td>
                         </tr>
                       ))}
                     </tbody>
@@ -114,20 +114,20 @@ function PaymentNoticeContent() {
 
                 {historyData.reports && historyData.reports.length > 0 && (
                   <div className="mt-3 p-2 bg-red-50 text-red-700 border border-red-200 rounded text-xs">
-                    <strong>⚠️ ফ্রড রিপোর্ট পাওয়া গেছে:</strong><br/>
+                    <strong className="text-red-800">⚠️ ফ্রড রিপোর্ট পাওয়া গেছে:</strong><br/>
                     {historyData.reports.map((rep, idx) => (
-                      <div key={idx}>- {rep.details} ({rep.courierName})</div>
+                      <div key={idx} className="text-red-700">- {rep.details} ({rep.courierName})</div>
                     ))}
                   </div>
                 )}
               </div>
             ) : (
-              <div className="text-red-500 text-sm">হিস্ট্রি পাওয়া যায়নি।</div>
+              <div className="text-red-500 text-sm font-semibold">হিস্ট্রি পাওয়া যায়নি।</div>
             )}
           </div>
         )}
 
-        {/* কনফার্মেশন বাটন (আপডেট করা হয়েছে) */}
+        {/* কনফার্মেশন বাটন */}
         <div className="mt-6 text-center border-t border-orange-200 pt-6">
           <a href="/custom-checkout" className="block w-full bg-teal-700 text-white font-bold py-3.5 rounded-lg hover:bg-teal-800 transition-colors shadow-md text-lg text-center cursor-pointer">
             পেমেন্ট করেছি, এখন অর্ডার প্লেস করব ➔
