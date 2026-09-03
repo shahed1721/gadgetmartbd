@@ -1,16 +1,24 @@
 'use client';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation'; // usePathname যুক্ত করা হয়েছে
 import { useState } from 'react';
 import { useCart } from './CartContext';
 
 export default function MobileBottomNav() {
   const { totalCartCount } = useCart();
   const router = useRouter();
+  const pathname = usePathname(); // বর্তমান পেজের লিংক বের করার জন্য
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // আপনার কন্টাক্ট নাম্বারগুলো (যেগুলো আপনি আগের হেডারে ব্যবহার করেছেন)
+  // =======================================================
+  // হাইড করার লজিক: যদি পেজটি সিঙ্গেল প্রোডাক্ট পেজ হয়, তবে বটম বার দেখাবে না
+  // =======================================================
+  if (pathname && (pathname.startsWith('/product/') || pathname.startsWith('/products/'))) {
+    return null;
+  }
+
+  // আপনার কন্টাক্ট নাম্বারগুলো
   const whatsappNumber = "8801516554116";
   const callNumber = "+8801516554116";
 
@@ -24,9 +32,6 @@ export default function MobileBottomNav() {
 
   const handleTagClick = (tag) => {
     setSearchQuery(tag);
-    // আপনি চাইলে ট্যাগ ক্লিক করার সাথে সাথেই সার্চ পেজে পাঠাতে পারেন
-    // router.push(`/search?q=${encodeURIComponent(tag)}`);
-    // setIsSearchOpen(false);
   };
 
   return (
@@ -99,7 +104,6 @@ export default function MobileBottomNav() {
             <div className="mb-4">
               <span className="block text-gray-600 font-semibold text-sm mb-3">Hot searches</span>
               <div className="flex flex-wrap gap-2">
-                {/* আপনার পিএইচপি কোডের ট্যাগগুলো[cite: 1] */}
                 {['HUMIDIFIER', 'EARBUDS', 'POWER BANK', 'SMARTWATCH', 'SPEAKER', 'MOBILE CASE'].map((tag) => (
                   <button 
                     key={tag}
