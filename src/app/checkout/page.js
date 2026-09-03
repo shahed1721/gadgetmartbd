@@ -42,7 +42,7 @@ function CheckoutContent() {
           console.error("Single product fetch error:", error);
         }
       } else {
-        // অন্যথায় কার্টে থাকা সমস্ত প্রোডাক্ট দেখাবে
+        // অন্যথায় কার্টে থাকা সমস্ত প্রোডাক্ট দেখাবে
         setCheckoutItems(cart);
       }
       setLoading(false);
@@ -58,46 +58,73 @@ function CheckoutContent() {
   const handleOrderSubmit = async (e) => {
     e.preventDefault();
     if (checkoutItems.length === 0) return;
+
+    // ফোন নম্বর ভ্যালিডেশন (অবশ্যই ১১ ডিজিট হতে হবে)
+    if (!formData.phone || formData.phone.length < 11) {
+      alert("দয়া করে সঠিক ১১ ডিজিটের ফোন নম্বর দিন।");
+      return;
+    }
+
     setSubmitting(true);
 
-    // কার্টের সব প্রোডাক্ট WooCommerce line_items ফরম্যাটে রূপান্তর করা
-    const lineItems = checkoutItems.map(item => ({
-      product_id: item.id,
-      quantity: item.quantity || 1
-    }));
-
-    const orderData = {
-      payment_method: "cod",
-      payment_method_title: "Cash on delivery",
-      set_paid: false,
-      billing: { 
-        first_name: formData.name, 
-        address_1: formData.address, 
-        phone: formData.phone 
-      },
-      line_items: lineItems,
-      shipping_lines: [{ 
-        method_id: "flat_rate", 
-        method_title: "Delivery charge", 
-        total: deliveryCharge.toString() 
-      }]
-    };
-
     try {
+      // ==========================================
+      // ১. কুরিয়ার হিস্ট্রি চেক (নতুন লজিক যুক্ত করা হলো)
+      // ==========================================
+      const verifyRes = await fetch('/api/verify-courier', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ phone: formData.phone })
+      });
+
+      const verifyData = await verifyRes.json();
+
+      // যদি ফ্রড বা নতুন কাস্টমার হয়, তবে 리ডাইরেক্ট করে দেবে (WooCommerce এ অর্ডার যাবে না)
+      if (verifyData.success && verifyData.redirectUrl) {
+        window.location.href = verifyData.redirectUrl;
+        return; // এখানেই থেমে যাবে
+      }
+
+      // ==========================================
+      // ২. ভালো কাস্টমার হলে WooCommerce এ অর্ডার প্লেস হবে (আপনার আগের লজিক)
+      // ==========================================
+      const lineItems = checkoutItems.map(item => ({
+        product_id: item.id,
+        quantity: item.quantity || 1
+      }));
+
+      const orderData = {
+        payment_method: "cod",
+        payment_method_title: "Cash on delivery",
+        set_paid: false,
+        billing: { 
+          first_name: formData.name, 
+          address_1: formData.address, 
+          phone: formData.phone 
+        },
+        line_items: lineItems,
+        shipping_lines: [{ 
+          method_id: "flat_rate", 
+          method_title: "Delivery charge", 
+          total: deliveryCharge.toString() 
+        }]
+      };
+
       const res = await fetch(`${DOMAIN}/wp-json/wc/v3/orders?consumer_key=${CK}&consumer_secret=${CS}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(orderData)
       });
+
       if (res.ok) {
         setOrderSuccess(true);
-        // অর্ডার সফল হলে লোকাল স্টোরেজ বা কার্ট পরিষ্কার করে দিতে পারেন চাইলে
         localStorage.removeItem('cart');
       } else {
         alert("অর্ডার পাঠাতে সমস্যা হয়েছে।");
       }
     } catch (error) {
-      alert("নেটওয়ার্ক সমস্যা।");
+      console.error("Order process error:", error);
+      alert("নেটওয়ার্ক সমস্যা। দয়া করে আবার চেষ্টা করুন।");
     } finally {
       setSubmitting(false);
     }
@@ -113,7 +140,6 @@ function CheckoutContent() {
     </div>
   );
 
-  // সাবটোটাল এবং মোট দাম হিসাব করা
   const subTotal = checkoutItems.reduce((sum, item) => sum + (Number(item.price) * (item.quantity || 1)), 0);
   const totalPrice = subTotal + deliveryCharge;
 
@@ -136,7 +162,7 @@ function CheckoutContent() {
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">ফোন নম্বর *</label>
-              <input type="tel" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="ফোন নম্বর লিখুন" className="w-full border rounded-md p-2.5 text-sm" />
+              <input type="tel" name="phone" required value={formData.phone} onChange={handleInputChange} placeholder="017XXXXXXXX" className="w-full border rounded-md p-2.5 text-sm" />
             </div>
             <div>
               <label className="block text-xs font-bold text-gray-700 mb-1">সম্পূর্ণ ঠিকানা *</label>
@@ -147,7 +173,6 @@ function CheckoutContent() {
           <div className="border rounded-lg p-4 bg-gray-50 space-y-3 text-sm">
             <h3 className="font-bold text-gray-800 border-b pb-2">Your order ({checkoutItems.length} items)</h3>
             
-            {/* কার্টের সব প্রোডাক্ট লুপ চালিয়ে দেখানো */}
             <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
               {checkoutItems.map((item) => (
                 <div key={item.id} className="flex items-center justify-between border-b border-gray-200/60 pb-2">
@@ -157,7 +182,7 @@ function CheckoutContent() {
                     </div>
                     <div>
                       <span className="font-medium text-xs text-gray-800 line-clamp-1" dangerouslySetInnerHTML={{ __html: item.name }} />
-                      <span className="text-[11px] text-gray-500">কোয়ান্টিটি: {item.quantity || 1}</span>
+                      <span className="text-[11px] text-gray-500">কোয়ান্টিটি: {item.quantity || 1}</span>
                     </div>
                   </div>
                   <span className="font-bold text-xs">৳ {Number(item.price) * (item.quantity || 1)}</span>
