@@ -1,6 +1,7 @@
 import Header from './components/Header'; 
 import Footer from './components/Footer';
 import { CartProvider } from './components/CartContext';
+import MobileBottomNav from './components/MobileBottomNav'; // <-- নতুন বটম নেভিগেশন যুক্ত করা হলো
 import './globals.css';
 
 export const metadata = {
@@ -16,13 +17,17 @@ export default function RootLayout({ children }) {
           {/* হেডার */}
           <Header />
           
-          {/* মূল পেজের কন্টেন্ট */}
-          <main className="flex-grow">
+          {/* মূল পেজের কন্টেন্ট (মোবাইলে বটম মেনুর জন্য নিচে একটু জায়গা pb-16 রাখা হলো) */}
+          <main className="flex-grow pb-16 md:pb-0">
             {children}
           </main>
           
           {/* ফুটার */}
           <Footer />
+
+          {/* মোবাইল বটম নেভিগেশন বার */}
+          <MobileBottomNav />
+          
         </CartProvider>
       </body>
     </html>
