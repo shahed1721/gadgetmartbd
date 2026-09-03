@@ -1,21 +1,22 @@
 'use client';
 import Link from 'next/link';
-import { useRouter, usePathname } from 'next/navigation'; // usePathname যুক্ত করা হয়েছে
+import { useRouter, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { useCart } from './CartContext';
 
 export default function MobileBottomNav() {
   const { totalCartCount } = useCart();
   const router = useRouter();
-  const pathname = usePathname(); // বর্তমান পেজের লিংক বের করার জন্য
+  const pathname = usePathname(); 
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
   // =======================================================
-  // হাইড করার লজিক: যদি পেজটি সিঙ্গেল প্রোডাক্ট পেজ হয়, তবে বটম বার দেখাবে না
+  // সিঙ্গেল প্রোডাক্ট পেজ হাইড লজিক (নিখুঁত পদ্ধতি)
   // =======================================================
-  if (pathname && (pathname.startsWith('/product/') || pathname.startsWith('/products/'))) {
-    return null;
+  // পেজের লিংকের শুরুতে যদি /product বা /products থাকে, তবে এই মেনু গায়েব হয়ে যাবে
+  if (pathname && (pathname.startsWith('/product') || pathname.startsWith('/products'))) {
+    return null; 
   }
 
   // আপনার কন্টাক্ট নাম্বারগুলো
@@ -36,7 +37,7 @@ export default function MobileBottomNav() {
 
   return (
     <>
-      {/* বটম নেভিগেশন বার (শুধুমাত্র মোবাইলে দেখাবে) */}
+      {/* বটম নেভিগেশন বার */}
       <div className="md:hidden fixed bottom-0 left-0 w-full bg-white shadow-[0_-2px_10px_rgba(0,0,0,0.1)] z-[9999] flex justify-around items-center py-2 pb-safe">
         
         {/* Search Button */}
