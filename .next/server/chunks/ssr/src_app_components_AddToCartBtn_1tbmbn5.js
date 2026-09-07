@@ -1,0 +1,3 @@
+module.exports=[91750,a=>{"use strict";var b=a.i(87924),c=a.i(79661);a.s(["default",0,function({product:a}){let{addToCart:d}=(0,c.useCart)();return(0,b.jsx)("button",{onClick:b=>{b.preventDefault(),b.stopPropagation(),d({id:a.id,name:a.name,price:a.price,image:a.images?.[0]?.src||"/logo.png"})},type:"button",className:"w-full bg-[#ff0000] hover:bg-red-700 text-white text-xs md:text-sm font-bold py-2.5 px-3 rounded-lg flex items-center justify-center gap-1.5 transition uppercase tracking-wider shadow-sm cursor-pointer",children:"🛒 ADD TO CART"})}])}];
+
+//# sourceMappingURL=src_app_components_AddToCartBtn_1tbmbn5.js.map

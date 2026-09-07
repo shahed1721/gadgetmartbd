@@ -1,0 +1,6 @@
+{
+  "version": 3,
+  "sources": [],
+  "sections": [
+    {"offset": {"line": 16, "column": 0}, "map": {"version":3,"sources":["file:///E:/New%20folder%20(3)/gadget/src/middleware.js"],"sourcesContent":["import { NextResponse } from 'next/server';\r\n\r\nexport function middleware(request) {\r\n  // ইউজারের ব্রাউজারে 'admin_auth' কুকি আছে কি না চেক করা\r\n  const isAuthenticated = request.cookies.get('admin_auth');\r\n\r\n  // যদি ইউজার /admin লিংকে যায় এবং লগিন করা না থাকে\r\n  if (request.nextUrl.pathname.startsWith('/admin') && !isAuthenticated) {\r\n    // তাকে জোর করে /login পেজে পাঠিয়ে দেওয়া হবে\r\n    return NextResponse.redirect(new URL('/login', request.url));\r\n  }\r\n}\r\n\r\n// এই মিডলওয়্যারটি শুধু /admin এবং তার ভেতরের পেজগুলোতে কাজ করবে\r\nexport const config = {\r\n  matcher: '/admin/:path*',\r\n};"],"names":["middleware","request","isAuthenticated","cookies","get","nextUrl","pathname","startsWith","redirect","URL","url","config","matcher"],"mappings":";;;;;;AAAA;AAAA;;AAEO,SAASA,WAAWC,OAAO;IAChC,wDAAwD;IACxD,MAAMC,kBAAkBD,QAAQE,OAAO,CAACC,GAAG,CAAC;IAE5C,kDAAkD;IAClD,IAAIH,QAAQI,OAAO,CAACC,QAAQ,CAACC,UAAU,CAAC,aAAa,CAACL,iBAAiB;QACrE,4CAA4C;QAC5C,OAAO,6MAAY,CAACM,QAAQ,CAAC,IAAIC,IAAI,UAAUR,QAAQS,GAAG;IAC5D;AACF;AAGO,MAAMC,SAAS;IACpBC,SAAS;AACX"}}]
+}

@@ -1,0 +1,26 @@
+1:"$Sreact.fragment"
+2:I[47257,["/_next/static/chunks/3fntmmi971322.js","/_next/static/chunks/0dp_o6f1armxf.js"],"ClientPageRoot"]
+3:I[73837,["/_next/static/chunks/3fntmmi971322.js","/_next/static/chunks/0dp_o6f1armxf.js","/_next/static/chunks/2-d5dkz0tuc0z.js"],"default"]
+6:I[97367,["/_next/static/chunks/3fntmmi971322.js","/_next/static/chunks/0dp_o6f1armxf.js"],"OutletBoundary"]
+7:"$Sreact.suspense"
+b:I[97367,["/_next/static/chunks/3fntmmi971322.js","/_next/static/chunks/0dp_o6f1armxf.js"],"ViewportBoundary"]
+c:I[97367,["/_next/static/chunks/3fntmmi971322.js","/_next/static/chunks/0dp_o6f1armxf.js"],"MetadataBoundary"]
+d:I[27201,["/_next/static/chunks/3fntmmi971322.js","/_next/static/chunks/0dp_o6f1armxf.js"],"IconMark"]
+f:I[39756,["/_next/static/chunks/3fntmmi971322.js","/_next/static/chunks/0dp_o6f1armxf.js"],"default"]
+10:I[37457,["/_next/static/chunks/3fntmmi971322.js","/_next/static/chunks/0dp_o6f1armxf.js"],"default"]
+13:I[22016,["/_next/static/chunks/3fntmmi971322.js","/_next/static/chunks/0dp_o6f1armxf.js"],""]
+a:X
+12:X
+12:C
+0:{"buildId":"da73dtCUpsHLRPEQHMsAe","data":[{"rsc":["$","$1","c",{"children":[["$","$L2",null,{"Component":"$3","serverProvidedParams":{"searchParams":{},"params":{},"promises":["$@4","$@5"]}}],[["$","script","script-0",{"src":"/_next/static/chunks/2-d5dkz0tuc0z.js","async":true}]],["$","$L6",null,{"children":["$","$7",null,{"name":"Next.MetadataOutlet","children":"$@8"}]}]]}],"isPartial":"$@9","staleTime":"$a","varyParams":null},{"rsc":["$","$1","h",{"children":[null,["$","$Lb",null,{"children":[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]}],["$","div",null,{"hidden":true,"children":["$","$Lc",null,{"children":["$","$7",null,{"name":"Next.Metadata","children":[["$","title","0",{"children":"Gadget Mart BD"}],["$","meta","1",{"name":"description","content":"Smart lifestyle choices"}],["$","link","2",{"rel":"icon","href":"/favicon.ico?favicon.2vob68tjqpejf.ico","sizes":"256x256","type":"image/x-icon"}],["$","$Ld","3",{}]]}]}]}],null]}],"isPartial":"$@e","staleTime":"$a","varyParams":null},{"rsc":["$","$1","c",{"children":[null,["$","$Lf",null,{"parallelRouterKey":"children","template":["$","$L10",null,{}]}]]}],"isPartial":"$@11","staleTime":"$a","varyParams":"$12"},{"rsc":["$","$1","c",{"children":[null,["$","div",null,{"className":"flex min-h-screen bg-gray-50","children":[["$","aside",null,{"className":"w-64 bg-white shadow-md border-r","children":[["$","div",null,{"className":"p-5 font-bold text-xl border-b text-gray-800","children":"Admin Panel"}],["$","nav",null,{"className":"p-4 space-y-2","children":[["$","$L13","0",{"href":"/admin","className":"block px-4 py-2 text-gray-700 hover:bg-indigo-600 hover:text-white rounded transition-colors","children":"Dashboard"}],["$","$L13","1",{"href":"/admin/incomplete-orders","className":"block px-4 py-2 text-gray-700 hover:bg-indigo-600 hover:text-white rounded transition-colors","children":"Incomplete Orders"}],["$","$L13","2",{"href":"/admin/orders","className":"block px-4 py-2 text-gray-700 hover:bg-indigo-600 hover:text-white rounded transition-colors","children":"Orders"}],["$","$L13","3",{"href":"/admin/products","className":"block px-4 py-2 text-gray-700 hover:bg-indigo-600 hover:text-white rounded transition-colors","children":"Products"}],["$","$L13","4",{"href":"/admin/settings","className":"block px-4 py-2 text-gray-700 hover:bg-indigo-600 hover:text-white rounded transition-colors","children":"Settings"}],["$","$L13","5",{"href":"/admin/pixel-settings","className":"block px-4 py-2 text-gray-700 hover:bg-indigo-600 hover:text-white rounded transition-colors","children":"Pixel Setup"}]]}]]}],["$","main",null,{"className":"flex-1 p-8","children":["$","$Lf",null,{"parallelRouterKey":"children","template":["$","$L10",null,{}]}]}]]}]]}],"isPartial":"$@14","staleTime":"$a","varyParams":null}],"isUpgradeableISRFallback":false,"a":"$@15","rootVaryParams":null,"needsRuntimeRequest":"$@16"}
+4:{}
+5:"$0:data:0:rsc:props:children:0:props:serverProvidedParams:params"
+8:null
+16:true
+a:300
+a:C
+15:0
+e:"$undefined"
+11:"$undefined"
+14:"$undefined"
+9:"$undefined"
