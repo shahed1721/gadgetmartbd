@@ -1717,10 +1717,6 @@
     padding-block: calc(var(--spacing) * 20);
   }
 
-  .py-28 {
-    padding-block: calc(var(--spacing) * 28);
-  }
-
   .py-\[2px\] {
     padding-block: 2px;
   }

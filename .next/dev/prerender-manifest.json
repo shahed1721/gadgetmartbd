@@ -1,11 +1,1 @@
-{
-  "version": 4,
-  "routes": {},
-  "dynamicRoutes": {},
-  "notFoundRoutes": [],
-  "preview": {
-    "previewModeId": "b38fe413ac3661087f3e9fca2f0b7ad1",
-    "previewModeSigningKey": "08935b6dbddadd867c88f5f3f6b483bde559268d995e0fb79188ba7adc3f5142",
-    "previewModeEncryptionKey": "31cb7ed44f4b0e740e6c433a7bd13021ec804e3b72f55c47b700e8c8794289d1"
-  }
-}
+{"version":4,"routes":{"/product/a9-pro-tws-earbuds-with-smart-touch-display-remote-scrolling-deep-bass-long-battery-life":{},"/product/aqsa-boom-wireless-neckband-earphones-with-5-voice-change-led-display-500-hours-playback-v5-4":{},"/product/ven-dens-vd-pb059-20000mah-18w-fast-charging-power-bank":{},"/product/sanford-high-power-flashlight-with-digital-display":{},"/product/ven-dens-18w-fast-charging-power-bank-10000mah-with-smart-bluetooth-earbuds-set":{},"/product/ven-dens-vd-pb058-10000mah-18w-fast-charging-power-bank-with-built-in-cables-led-torch-indicator-light":{},"/product/recrsi-re-ny060-wireless-neckband-earphones-long-battery-backup-with-fast-charging":{},"/product/cute-mini-portable-rechargeable-fan-with-detachable-dock-usb-handheld-desktop-cooling-fan":{},"/product/wgp-wonderful-mini-ups-11000mah-backup-power-for-wifi-router-onu":{}},"dynamicRoutes":{"/product/[slug]":{"dataRoute":null,"dataRouteRegex":null,"fallback":null,"fallbackRevalidate":false,"fallbackSourceRoute":"/product/[slug]","routeRegex":"^\\/product\\/([^/]+?)(?:\\/)?$","allowHeader":[]}},"notFoundRoutes":[],"preview":{"previewModeId":"e530c6b0c3634ec3e8e325434268f7a1","previewModeSigningKey":"32222e3fc773a55d4815376c9949291ddabc89db54f875a3aca6db3e883fad78","previewModeEncryptionKey":"9a8de924fdddcc80f9c0c392c4136226de2278b25e9602acdf2f0c22164cfb30"}}

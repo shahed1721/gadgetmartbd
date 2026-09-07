@@ -134,25 +134,31 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist
 ;
 function FacebookPixel() {
     const pathname = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["usePathname"])();
-    const [pixelId, setPixelId] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])('');
-    // API থেকে সেভ করা পিক্সেল আইডি নিয়ে আসা
+    const [pixelData, setPixelData] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useState"])({
+        pixel_id: '',
+        test_event_code: ''
+    });
+    // API থেকে সেভ করা পিক্সেল আইডি এবং টেস্ট ইভেন্ট কোড নিয়ে আসা
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         fetch('/api/pixel-settings').then((res)=>res.json()).then((data)=>{
             if (data && data.pixel_id) {
-                setPixelId(data.pixel_id);
+                setPixelData({
+                    pixel_id: data.pixel_id,
+                    test_event_code: data.test_event_code || ''
+                });
             }
-        }).catch((err)=>console.error("Error fetching pixel ID:", err));
+        }).catch((err)=>console.error("Error fetching pixel settings:", err));
     }, []);
-    // রাউট বা পেজ পরিবর্তন হলে নতুন করে PageView ফায়ার করা
+    // রাউট বা পেজ পরিবর্তন হলে নতুন করে PageView ফায়ার করা (টেস্ট কোড সহ)
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useEffect"])(()=>{
         if ("TURBOPACK compile-time falsy", 0) //TURBOPACK unreachable
         ;
     }, [
         pathname,
-        pixelId
+        pixelData
     ]);
     // পিক্সেল আইডি না থাকলে কোড রান করবে না
-    if (!pixelId) return null;
+    if (!pixelData.pixel_id) return null;
     return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$script$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"], {
         id: "facebook-pixel",
         strategy: "afterInteractive",
@@ -166,13 +172,14 @@ function FacebookPixel() {
           t.src=v;s=b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init', '${pixelId}');
+          fbq('init', '${pixelData.pixel_id}');
+          ${pixelData.test_event_code ? `fbq('set', 'test_event_code', '${pixelData.test_event_code}');` : ''}
           fbq('track', 'PageView');
         `
         }
     }, void 0, false, {
         fileName: "[project]/src/app/components/FacebookPixel.jsx",
-        lineNumber: 33,
+        lineNumber: 39,
         columnNumber: 5
     }, this);
 }

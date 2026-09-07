@@ -5,29 +5,35 @@ import { useEffect, useState } from 'react';
 
 export default function FacebookPixel() {
   const pathname = usePathname();
-  const [pixelId, setPixelId] = useState('');
+  const [pixelData, setPixelData] = useState({ pixel_id: '', test_event_code: '' });
 
-  // API থেকে সেভ করা পিক্সেল আইডি নিয়ে আসা
+  // API থেকে সেভ করা পিক্সেল আইডি এবং টেস্ট ইভেন্ট কোড নিয়ে আসা
   useEffect(() => {
     fetch('/api/pixel-settings')
       .then((res) => res.json())
       .then((data) => {
         if (data && data.pixel_id) {
-          setPixelId(data.pixel_id);
+          setPixelData({
+            pixel_id: data.pixel_id,
+            test_event_code: data.test_event_code || ''
+          });
         }
       })
-      .catch((err) => console.error("Error fetching pixel ID:", err));
+      .catch((err) => console.error("Error fetching pixel settings:", err));
   }, []);
 
-  // রাউট বা পেজ পরিবর্তন হলে নতুন করে PageView ফায়ার করা
+  // রাউট বা পেজ পরিবর্তন হলে নতুন করে PageView ফায়ার করা (টেস্ট কোড সহ)
   useEffect(() => {
-    if (pixelId && typeof window !== 'undefined' && window.fbq) {
+    if (pixelData.pixel_id && typeof window !== 'undefined' && window.fbq) {
+      if (pixelData.test_event_code) {
+        window.fbq('set', 'test_event_code', pixelData.test_event_code);
+      }
       window.fbq('track', 'PageView');
     }
-  }, [pathname, pixelId]);
+  }, [pathname, pixelData]);
 
   // পিক্সেল আইডি না থাকলে কোড রান করবে না
-  if (!pixelId) return null;
+  if (!pixelData.pixel_id) return null;
 
   return (
     <Script
@@ -43,7 +49,8 @@ export default function FacebookPixel() {
           t.src=v;s=b.getElementsByTagName(e)[0];
           s.parentNode.insertBefore(t,s)}(window, document,'script',
           'https://connect.facebook.net/en_US/fbevents.js');
-          fbq('init', '${pixelId}');
+          fbq('init', '${pixelData.pixel_id}');
+          ${pixelData.test_event_code ? `fbq('set', 'test_event_code', '${pixelData.test_event_code}');` : ''}
           fbq('track', 'PageView');
         `,
       }}
